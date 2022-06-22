@@ -1,3 +1,9 @@
+# Artifacts
+/.artifacts
+/.cache
+
+
+
 # Logs
 logs
 *.log
