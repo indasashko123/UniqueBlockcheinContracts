@@ -37,28 +37,33 @@ contract UserStorage is IUserStorage
     }  
 
                                     /// Payable
-   function AddUser(address userAddress, address ref, address key) override public payable 
+   function AddUser(address userAddress, address ref, address key) override public payable ///
    {
        require(SecretKey[key], "1");  // TEST
-       require(!IsUserExist(userAddress),"User is registered now");
-       if (!IsUserExist(ref))
+       if (!IsUserExist(userAddress))
        {
-           ref = _owner;
+            if (!IsUserExist(ref))
+            {
+                ref = _owner;
+            }
+            User memory newUser = User
+            ({
+                id : newUserId++,
+                refererAddress : ref,
+                referrals : 0   
+            });
+            userByAddres[userAddress] = newUser;
+            userById[newUser.id] = newUser;
+            userAddressById[newUser.id] = userAddress;
        }
-       User memory newUser = User
-       ({
-        id : newUserId++,
-        refererAddress : ref,
-        referrals : 0   
-       });
-       userByAddres[userAddress] = newUser;
-       userById[newUser.id] = newUser;
-       userAddressById[newUser.id] = userAddress;
+      
    }
-   function AddReferal(address userAddress, address key) override public payable   
+   function AddReferal(address userAddress, address key) override public payable    ///
    {
-       require(SecretKey[key], "1");  // TEST
-       userByAddres[userAddress].referrals ++;
+       require(SecretKey[key], "1");  
+       uint userId = userByAddres[userAddress].id;
+       userByAddres[userAddress].referrals++;
+       userById[userId].referrals++;
    }
 
                                         /// VIEW
@@ -87,7 +92,7 @@ contract UserStorage is IUserStorage
    function GetUserById(uint id) override public view returns (uint, address, uint)
    {
        User memory user = userById[id];
-         return 
+       return 
       (
         user.id,
         user.refererAddress,

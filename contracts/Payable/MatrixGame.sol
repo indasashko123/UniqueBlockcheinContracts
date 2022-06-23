@@ -70,7 +70,6 @@ contract MatrixGame is ReentrancyGuard
     function buyTable(uint8 table, uint refId) public payable nonReentrant 
     {
         require(!isContract(msg.sender), "Can not be a contract");
-        require(tableController.IsTableOpen(table), "Table is not open to purchase");
         require(tableController.TableNumberIsValid(table), "Invalid level");
         require(tableController.GetTablePrice(table) == msg.value, "Invalid BNB value");
         if (!userController.IsUserExist(msg.sender))
@@ -90,7 +89,7 @@ contract MatrixGame is ReentrancyGuard
         uint rewardForTable = onePercent * rewardPercents;
         uint spend;
 
-        tableController.BuyTable(table, msg.sender, senderId, key);
+        tableController.BuyTable(table, msg.sender, key);
         address rewardAddress = tableController.GetFirstTableAddress(table);   
         uint rewarderUserId = userController.GetUserIdByAddress(rewardAddress); 
         spend += rewardForTable;
@@ -100,7 +99,7 @@ contract MatrixGame is ReentrancyGuard
         uint rewardableLinesCount = userController.GetReferalLines();
         for (uint8 line = 1; line <= rewardableLinesCount; line++) 
         {
-            uint rewardValue = onePercent * userController.GerReferalPercent(line);
+            uint rewardValue = onePercent * userController.GetReferalPercent(line);
             spend += rewardValue;           
             payable(userReferrer).transfer(rewardValue);
             uint refererId = userController.GetUserIdByAddress(userReferrer);
@@ -123,14 +122,13 @@ contract MatrixGame is ReentrancyGuard
     function BuyTableReInvest(uint userId, uint value, uint8 table, address key) public payable
     {
     require(SecretKey[key], "No accsess");
-    require(tableController.IsTableOpen(table), "Table is not open to purchase");
     require(tableController.TableNumberIsValid(table), "Invalid level");
     require(tableController.GetTablePrice(table) == value, "Invalid BNB value");
         turnover += value;
         uint onePercent = value / 100;
         uint spend;
         address userAddress = userController.GetUserAddressById(userId);
-        tableController.BuyTable( table, userAddress, userId, GetSeckretKey[1]);
+        tableController.BuyTable( table, userAddress, GetSeckretKey[1]);
         uint reward = onePercent * rewardPercents;
         spend += reward;
         address rewardAddress = tableController.GetFirstTableAddress(table);  
@@ -148,7 +146,7 @@ contract MatrixGame is ReentrancyGuard
         address userReferrer = userController.GetReferrer(userAddress);
         for (uint8 line = 1; line <= rewardableLinesCount; line++) 
         {
-            uint rewardValue = onePercent * userController.GerReferalPercent(line);
+            uint rewardValue = onePercent * userController.GetReferalPercent(line);
             spend += rewardValue;
             payable(userReferrer).transfer(rewardValue);
             uint refererId = userController.GetUserIdByAddress(userReferrer);

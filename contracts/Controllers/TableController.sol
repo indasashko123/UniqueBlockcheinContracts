@@ -32,8 +32,7 @@ contract TableController is ITableController
         16 ether,
         20 ether
     ];
-    uint totalTables = TablePrice.length - 1; 
-    mapping (uint8 => bool) OpenedTables;    /// table number => open/close
+    uint totalTables = TablePrice.length - 1;    /// 16
      
     constructor(address key, address tableStorageAddress, address userStorageAddress)
     {
@@ -41,30 +40,28 @@ contract TableController is ITableController
         SecretKey[key] = true;
         tableStorage = ITableStorage(tableStorageAddress);
         userStorage = IUserStorage(userStorageAddress);
-        OpenedTables[1] = true;
-        OpenedTables[2] = true;
-        OpenedTables[3] = true;
-        OpenedTables[4] = true;
-
+        AddWhite(1,20, key, _owner);
 
     }
 
 
     /// Payable
-    function BuyTable(uint8 table, address userAddress, uint userId, address key) override public payable
+    function BuyTable(uint8 table, address userAddress, address key) override public payable
     { 
         require(SecretKey[key], "1");
+        uint userId = userStorage.GetUserIdByAddress(userAddress);
         tableStorage.AddTable(table, 3 ,userAddress, userId, key);
         address rewardAddress = tableStorage.GetFirstTableAddress(table);  
         uint rewarderUserId = userStorage.GetUserIdByAddress(rewardAddress);
-        if (!tableStorage.IsTableActiveOver(rewarderUserId, table)) 
-                {
-                    tableStorage.PushTable(key, table, rewardAddress);
-                }
-            else 
-                {
-                tableStorage.DeactiveTable(rewarderUserId, table, key);
-                }
+        tableStorage.ReducePayout(key, table, rewarderUserId);
+        if (tableStorage.IsTableActiveOver(rewarderUserId, table)) 
+        {
+            tableStorage.DeactiveTable(rewarderUserId, table, key);
+        }
+        else 
+        {
+            tableStorage.PushTable(key, table, rewardAddress);
+        }
         tableStorage.SwitchTablesQueue(table, key);
     } 
     function AddReferalPayout(uint userId, uint rewardValue, address key) override public payable
@@ -75,29 +72,8 @@ contract TableController is ITableController
     {
         tableStorage.AddRewardSum(userId, table, reward, key);
     }
-    function OpenTable(uint8 table) override public payable
-    {
-        OpenedTables[table] = true;
-    } 
-    function CloseTable(uint8 table) override public payable
-    {
-        OpenedTables[table] = false;
-    } 
-    function AddWhiteTable(address key, uint userId, address userAddress, uint16 payouts) public payable 
-    {
-        require(_owner == msg.sender, "only owner");
-        require(SecretKey[key], "1");
-        for(uint8 table = 1; table <= totalTables; table++) 
-        {
-            tableStorage.AddTable(table, payouts, userAddress, userId,key);
-        }
-    }
     
     /// View 
-    function IsTableOpen(uint8 table) public override view returns (bool)
-    {
-        return OpenedTables[table];
-    }
     function IsTableActive(uint userId, uint8 table) public override view returns(bool)
     {
         return tableStorage.IsTableActive(userId, table);
@@ -150,7 +126,6 @@ contract TableController is ITableController
     {
         return tableStorage.GetGlobalStatistic();
     }
-
     function GetPlaceInQueue(uint userId, address userAddress, uint8 table) override public view returns(uint, uint)
     {
         return tableStorage.GetPlaceInQueue(userId, userAddress, table, totalTables);
@@ -160,6 +135,16 @@ contract TableController is ITableController
         return tableStorage.GetUserRewards(userId);
     }
 
+    //// General queue of tables per level
+    function GetTablesQueue(uint8 table)override public view returns(address[] memory)
+    {
+        return tableStorage.GetTablesQueue(table);
+    }
+    //// Index of first table on level.
+    function GetHeadIndex(uint8 table)override public view returns(uint)
+    {
+        return tableStorage.GetHeadIndex(table);
+    }
 
 
 
@@ -180,7 +165,7 @@ contract TableController is ITableController
     {
         require(SecretKey[key],"1");
         require(_owner == msg.sender, "only owner");
-        for (uint8 line; line<totalTables; line++)
+        for (uint8 line = 1; line<=totalTables; line++)
         {
             tableStorage.AddTable(line, payouts, userAddress , userId, key);
         }

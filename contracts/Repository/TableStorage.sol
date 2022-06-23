@@ -42,11 +42,15 @@ contract TableStorage is ITableStorage
         UserTablesById[userId].Tables[table].active = true;
         TablesQueue[table].push(UserAddress);
     } 
+    function ReducePayout(address key, uint8 table, uint userId) override public payable
+    {
+        require(SecretKey[key], "1");
+        UserTablesById[userId].Tables[table].payouts = UserTablesById[userId].Tables[table].payouts-1;
+    }
     function AddRewardSum(uint rewarderUserId, uint8 table, uint reward, address key )override public payable
     {
         require(SecretKey[key], "1");
         UserTablesById[rewarderUserId].Tables[table].rewardSum += reward;
-        UserTablesById[rewarderUserId].Tables[table].payouts--;
         UserTablesById[rewarderUserId].RewardSumForTables += reward;              
     }
     function PushTable(address key, uint8 table, address rewardAddress)override public payable
@@ -71,14 +75,19 @@ contract TableStorage is ITableStorage
         UserTablesById[userId].ReferalRewards += rewardValue;
     }
 
-   //// Порядок :   1 AddTable, 2 PushTable, 3 SwitchTablesQueue
-
-
-
-
-
 
     /// VIEW
+
+    //// General queue of tables per level
+    function GetTablesQueue(uint8 table)override public view returns(address[] memory)
+    {
+        return TablesQueue[table];
+    }
+    //// Index of first table on level.
+    function GetHeadIndex(uint8 table)override public view returns(uint)
+    {
+        return headIndex[table];
+    }
     function IsTableActive(uint userId, uint8 tableNumber)override public view returns (bool)
     {
         return UserTablesById[userId].Tables[tableNumber].active;
@@ -89,14 +98,15 @@ contract TableStorage is ITableStorage
     }
     function IsTableActiveOver(uint userId, uint8 table)override public view returns(bool)
     {
-        return UserTablesById[userId].Tables[table].payouts <= 0;
+        return UserTablesById[userId].Tables[table].payouts == 0;
     }
     function GetTablesCount(uint totalTables)override public view returns (uint[] memory)
     {
+        uint lines = totalTables;  //16
         uint[] memory tablesCount = new uint[](totalTables +1);
-        for(uint8 level = 1; level <= totalTables; level++)
+        for(uint8 level = 1; level <= lines; level++)
         {
-            tablesCount[level] = TablesQueue[level].length-1 - headIndex[level];
+            tablesCount[level] = TablesQueue[level].length - headIndex[level];
         }
         return tablesCount;
     }
