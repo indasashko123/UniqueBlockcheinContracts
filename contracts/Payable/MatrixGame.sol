@@ -57,7 +57,7 @@ contract MatrixGame is ReentrancyGuard
             revert("Tables are not purchased directly");   
         }
     }
-    function registerWithReferrer(uint  refId) public payable 
+    function registerWithReferrer(uint refId) public payable 
     {
         require(!isContract(msg.sender), "Can not be a contract");
         if (!userController.IsUserExistById(refId))
@@ -67,7 +67,7 @@ contract MatrixGame is ReentrancyGuard
         userController.Register(GetSeckretKey[1],msg.sender, refId);
     }
     
-    function buyTable(uint8 table, uint refId) public payable nonReentrant 
+    function BuyTable(uint8 table, uint refId) public payable nonReentrant 
     {
         require(!isContract(msg.sender), "Can not be a contract");
         require(tableController.TableNumberIsValid(table), "Invalid level");
@@ -84,17 +84,24 @@ contract MatrixGame is ReentrancyGuard
         require(!tableController.IsTableActive(senderId, table), "Level already active"); 
         address key = GetSeckretKey[1];
 
+        // Общий оборот ++
         turnover += msg.value;
         uint onePercent = msg.value / 100;
         uint rewardForTable = onePercent * rewardPercents;
         uint spend;
 
-        tableController.BuyTable(table, msg.sender, key);
-        address rewardAddress = tableController.GetFirstTableAddress(table);   
+        //  PAY FOR TABLE
+        address rewardAddress = tableController.GetFirstTableAddress(table); 
         uint rewarderUserId = userController.GetUserIdByAddress(rewardAddress); 
         spend += rewardForTable;
-        payable(rewardAddress).transfer(rewardForTable);           
+        payable(rewardAddress).transfer(rewardForTable); 
         tableController.AddRewardSum(rewarderUserId, table, rewardForTable, key);
+
+        // BUY TABLE
+        tableController.BuyTable(table, msg.sender, key);
+                
+        
+        // REFERAL REWARDDS
         address userReferrer = userController.GetReferrer(msg.sender);
         uint rewardableLinesCount = userController.GetReferalLines();
         for (uint8 line = 1; line <= rewardableLinesCount; line++) 
@@ -109,6 +116,8 @@ contract MatrixGame is ReentrancyGuard
                 userReferrer = userController.GetReferrer(userReferrer);
             }
         }
+
+        /// BUY TICKET
         uint ticketCost = msg.value - spend;
         pullController.BuyTicket(msg.sender, ticketCost, key);
         bool sentTicket = payable(_pullInvestAddress).send(ticketCost);           

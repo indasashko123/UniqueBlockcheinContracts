@@ -45,16 +45,25 @@ contract PullController is IPullController
             pullStorage.SetMember(userId, key);
         }
         uint lastValue = pullStorage.GetLastCurrentPullSum();
-        if (lastValue < value)
+        if (lastValue > value)
         {
             pullStorage.SetTicket(userAddress, value,  userId,  key);
+            pullStorage.AddMemberDeposite(userId, value, key);
+            pullStorage.SetCurrentPullValue(value, key);
         }
         else
         {
-            uint firstSum = value - lastValue;
-            pullStorage.SetTicket(userAddress, value,  userId,  key);
+            uint residual = value - lastValue;
+            pullStorage.SetTicket(userAddress, lastValue,  userId,  key);
+            pullStorage.SetCurrentPullValue(lastValue, key);
             pullStorage.AddNewPull(key);
-            pullStorage.SetTicket(userAddress, value - firstSum,  userId,  key);
+            if (residual > 0)
+            {
+                pullStorage.SetTicket(userAddress, residual,  userId,  key);
+                pullStorage.SetCurrentPullValue(residual, key);
+                pullStorage.AddMemberDeposite(userId, value, key);
+            }
+
         }
     }
     function AddMemberReferalRewards(uint value, uint UserId, address key) override public payable
@@ -83,13 +92,22 @@ contract PullController is IPullController
     {
         return pullStorage.GetTicketCountOnPull(pullId);
     }
-    function GetPullCrondFindingSum(uint pullId)  override public view returns (uint)
+    function GetPullCollectedSum(uint pullId)  override public view returns (uint)
     {
-        return pullStorage.GetPullCrondFindingSum(pullId);
+        return pullStorage.GetPullCollectedSum(pullId);
     }
     function GetTicketInfo(uint pullId, uint ticketNumber) override public view returns(address,uint,uint)
     {
         return pullStorage.GetTicketInfo(pullId, ticketNumber);
+    }
+
+    function GetCurrentPull() override public view returns(uint,uint,uint,uint)
+    {
+        return pullStorage.GetCurrentPull();
+    }
+    function GetPull(uint pullId) override public view returns(uint,uint,uint,uint)
+    {
+        return pullStorage.GetPull(pullId);
     }
 
 

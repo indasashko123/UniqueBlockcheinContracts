@@ -13,6 +13,8 @@ interface IPullController
     function GetRewardableLines() external view returns(uint[] memory);
     function IsPullExist(uint id) external view returns (bool);
     function GetTicketCountOnPull(uint pullId) external view returns(uint);
-    function GetPullCrondFindingSum(uint pullId)  external view returns (uint);
+    function GetPullCollectedSum(uint pullId)  external view returns (uint);
     function GetTicketInfo(uint pullId, uint ticketNumber) external view returns(address,uint,uint);
+    function GetCurrentPull() external view returns(uint,uint,uint,uint);
+    function GetPull(uint pullId) external view returns(uint,uint,uint,uint);
 }

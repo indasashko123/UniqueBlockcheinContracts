@@ -47,9 +47,9 @@ contract Reinvest is ReentrancyGuard
     {
         require(pullController.IsPullExist(pullId), "Pull not found");
         uint[] memory rewardableLines = pullController.GetRewardableLines(); 
-        uint TotalValue = msg.value/100*60;              //// 60% от полученной суммы
-        uint ToReinvestValue = msg.value - TotalValue;   //// 40% на реинвест              
-        uint OnePercent =  pullController.GetPullCrondFindingSum(pullId)/100;     /// Доля от вложенного. 1%     
+        uint TotalValue = msg.value/100*60;                                    //// 60% от полученной суммы
+        uint ToReinvestValue = msg.value - TotalValue;                         //// 40% на реинвест              
+        uint OnePercent =  pullController.GetPullCollectedSum(pullId)/100;     /// Доля от вложенного. 1%     
         uint ticketsCount = pullController.GetTicketCountOnPull(pullId);
         for (uint tick = 0; tick<ticketsCount; tick++)
         { 
@@ -90,9 +90,11 @@ contract Reinvest is ReentrancyGuard
             pullController.AddMemberRewards(UserReward, UserId, GetSeckretKey[1]);         
         }
     }
-    function ReinvestTable(uint8 table, uint userId)external payable
+    function ReinvestTable(uint8 table, address userAddress)external payable
     { 
+        require(userController.IsUserExist(userAddress),"Not found user");
         uint value = tableController.GetTablePrice(table);
+        uint userId = userController.GetUserIdByAddress(userAddress);
         require(depositeController.GetUserDeposite(userId) <  value, "Not enoight token" );
         require(!tableController.IsTableActive(userId, table), "TableAlreadyActive");        
         bool sent = payable(address(game)).send(value);

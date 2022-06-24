@@ -6,8 +6,7 @@ import '../Interfaces/IPullStorage.sol';
 contract PullStorage  is IPullStorage
 { 
     mapping (address => bool) private SecretKey;
-    address payable owner;
-
+    address payable private owner;
     struct Member 
     {
         uint SumDeposite;
@@ -36,25 +35,23 @@ contract PullStorage  is IPullStorage
     mapping (uint => Member) Members;     /// UserId => Member
     mapping (uint => Pull) Pulls;         /// PullId => Pull           
     mapping (uint => Ticket[]) Tickets;   /// PullId => Tickets;
-    uint newPullId = 1;
-    uint FoundingSum;
-    Pull CurrentPull;
-    GlobalStatistic globalStat;
+    uint private newPullId = 1;
+    uint private FoundingSum;
+    GlobalStatistic private globalStat;
 
     constructor(address key, uint Sum )
     {
         SecretKey[key] = true;
         owner = payable(msg.sender);
         FoundingSum = Sum;
-        Pulls[newPullId] = Pull
+        Pull memory newPull = Pull
         ({
-           id : newPullId++,
+           id : newPullId,
            CrowndFindingSum : FoundingSum,
            CollectSum  : 0,
            LastFound : FoundingSum
         });
-        CurrentPull = Pulls[newPullId];
-        newPullId++;
+        Pulls[newPull.id] = newPull;
     }
 
 
@@ -78,38 +75,42 @@ contract PullStorage  is IPullStorage
             Sum : value,
             UserId : userId
         });
-        Tickets[CurrentPull.id].push(ticket);
-        Members[userId].SumDeposite += value;
+        Tickets[Pulls[newPullId].id].push(ticket);
+        
     }
+    function AddMemberDeposite(uint userId, uint value, address key) override public payable
+    {
+        require(SecretKey[key], "1");
+        Members[userId].SumDeposite += value;
+    } 
     function SetCurrentPullValue(uint value, address key)  override public payable 
     {
         require(SecretKey[key], "1");
-        CurrentPull.CollectSum += value;
-        CurrentPull.LastFound -= value;
+        Pulls[newPullId].CollectSum = Pulls[newPullId].CollectSum + value;
+        Pulls[newPullId].LastFound = Pulls[newPullId].LastFound - value;
     }
     function AddNewPull(address key) override public payable 
     {  
         require(SecretKey[key], "1");
         Pull memory newPull = Pull
             ({
-            id: newPullId++,
+            id: ++newPullId,
             CrowndFindingSum : FoundingSum,
             CollectSum : 0,
             LastFound : FoundingSum
             });
-        Pulls[newPullId] = newPull;
-        CurrentPull = newPull;
+        Pulls[newPull.id] = newPull;
         globalStat.TotalPullsClose ++;
     } 
     function AddMemberReferalRewards(uint value, uint UserId, address key) override public payable
     {
         require(SecretKey[key], "1");
-        Members[UserId].RewardsFromRef += value;
+        Members[UserId].RewardsFromRef = Members[UserId].RewardsFromRef + value;
     }
     function AddMemberRewards(uint value, uint UserId, address key) override public payable
     {
         require(SecretKey[key], "1");
-        Members[UserId].RewardsForPulls += value;
+        Members[UserId].RewardsForPulls = Members[UserId].RewardsForPulls + value;
     }
 
 
@@ -165,14 +166,15 @@ contract PullStorage  is IPullStorage
     }
     function GetLastCurrentPullSum() override public view returns (uint)
     {
-        return CurrentPull.LastFound;
+        return Pulls[newPullId].LastFound;
     }
-    function GetPullCrondFindingSum(uint pullId) override public view returns (uint)
+    function GetPullCollectedSum(uint pullId) override public view returns (uint)
     {
         return Pulls[pullId].CrowndFindingSum;
     }
     function GetCurrentPull() override public view returns(uint,uint,uint,uint)
     {
+        Pull memory CurrentPull = Pulls[newPullId];
      return (
         CurrentPull.id, 
         CurrentPull.CrowndFindingSum,
@@ -186,5 +188,9 @@ contract PullStorage  is IPullStorage
         Members[id].RewardsForPulls, 
         Members[id].RewardsFromRef);
    }
-
+   function GetPull(uint pullId) override public view returns(uint,uint,uint,uint)
+   {
+       Pull memory pull = Pulls[pullId];
+       return (pull.id, pull.CrowndFindingSum, pull.CollectSum,  pull.LastFound);
+   }
 }

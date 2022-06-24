@@ -6,8 +6,6 @@ interface IDepositeController
     function SetReinvestCell(uint userId, uint value, address key) external payable;
     function ReduceUserDeposite(uint value, uint userId, address key) external payable;
 
-
-
     function GetUserDeposite(uint userId) external view returns(uint);
     function GetTotalState() external view returns(uint,uint);
 }
