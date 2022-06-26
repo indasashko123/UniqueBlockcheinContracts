@@ -14,11 +14,6 @@
           "internalType": "uint256",
           "name": "rewardValue",
           "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "AddReferalPayout",
@@ -42,11 +37,6 @@
           "internalType": "uint256",
           "name": "reward",
           "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "AddRewardSum",
@@ -73,13 +63,8 @@
         },
         {
           "internalType": "uint256",
-          "name": "userId",
+          "name": "userIdy",
           "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "AddTable",
@@ -98,11 +83,6 @@
           "internalType": "uint8",
           "name": "table",
           "type": "uint8"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "DeactiveTable",
@@ -352,11 +332,6 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
-        },
-        {
           "internalType": "uint8",
           "name": "table",
           "type": "uint8"
@@ -375,11 +350,6 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
-        },
-        {
           "internalType": "uint8",
           "name": "table",
           "type": "uint8"
@@ -396,16 +366,18 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "SetKey",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "uint8",
           "name": "table",
           "type": "uint8"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "SwitchTablesQueue",

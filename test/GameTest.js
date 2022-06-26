@@ -1,8 +1,9 @@
+
 const  {expect} = require("chai");
 const { BigNumber } = require("ethers");
 const {ethers} = require ("hardhat");
 
-describe("User Tests", function ()
+describe("Game Tests", function ()
 {
     let acc1;let acc2;let acc3;let acc4;let acc5;let acc6;let acc7; let acc8;let acc9;
     let acc10;let acc11;let acc12;let acc13;let acc14;let acc15;let acc16;
@@ -25,37 +26,37 @@ describe("User Tests", function ()
 
 
         const UserStorage = await ethers.getContractFactory("UserStorage", owner);
-        userStorage = await UserStorage.deploy(key.address );
+        userStorage = await UserStorage.deploy();
         await userStorage.deployed();
         userStorageAddres = userStorage.address;
      
         const UserController = await ethers.getContractFactory("UserController", owner);
-        userController = await UserController.deploy(key.address, userStorageAddres );
+        userController = await UserController.deploy( userStorageAddres );
         await userController.deployed();
         userControllerAddres = userController.address;
     
         const TableStorage = await ethers.getContractFactory("TableStorage", owner);
-        tableStorage = await TableStorage.deploy(key.address);
+        tableStorage = await TableStorage.deploy();
         await tableStorage.deployed();
         tableStorageAddres = tableStorage.address;
      
         const TableController = await ethers.getContractFactory("TableController", owner);
-        tableController = await TableController.deploy(key.address,tableStorageAddres ,userStorageAddres );
+        tableController = await TableController.deploy(tableStorageAddres ,userStorageAddres );
         await tableController.deployed();
         tableControllerAddres = tableController.address;
     
         const PullStorage = await ethers.getContractFactory("PullStorage", owner);
-        pullStorage = await PullStorage.deploy(key.address ,  ethers.utils.parseEther("10"));
+        pullStorage = await PullStorage.deploy(ethers.utils.parseEther("10"));
         await pullStorage.deployed();
         pullStorageAddres = pullStorage.address;
      
         const PullController = await ethers.getContractFactory("PullController", owner);
-        pullController = await PullController.deploy(key.address, pullStorageAddres, userStorageAddres);
+        pullController = await PullController.deploy(pullStorageAddres, userStorageAddres);
         await pullController.deployed();
         pullControllerAddres = pullController.address;
 
         const Matrix = await ethers.getContractFactory("MatrixGame", owner);
-        matrix = await Matrix.deploy(key.address, userControllerAddres, pullControllerAddres, tableControllerAddres, acc16.address);
+        matrix = await Matrix.deploy(userControllerAddres, pullControllerAddres, tableControllerAddres, acc16.address);
         await matrix.deployed();
         matrixAddress = matrix.address;
        
@@ -63,12 +64,12 @@ describe("User Tests", function ()
 
 
         const DepositeStorage = await ethers.getContractFactory("DepositeStorage", owner);
-        depositeStorage = await DepositeStorage.deploy(key.address);
+        depositeStorage = await DepositeStorage.deploy();
         await depositeStorage.deployed();
         depositeStorageAddres = depositeStorage.address;
      
         const DepositeController = await ethers.getContractFactory("DepositeController", owner);
-        depositeController = await DepositeController.deploy(key.address,depositeStorageAddres);
+        depositeController = await DepositeController.deploy(depositeStorageAddres);
         await depositeController.deployed();
         depositeControllerAddres = depositeController.address;
 
@@ -141,11 +142,6 @@ describe("User Tests", function ()
     let ac3ballance = await (await ethers.provider.getBalance(acc3.address));
     let owner1ballance = await (await ethers.provider.getBalance(owner.address));
     let contballance = await matrix.getContractBalance();
-    console.log(ac1ballance.toString());
-    console.log(ac2ballance.toString());
-    console.log(ac3ballance.toString());
-    console.log(owner1ballance.toString());
-    console.log(contballance.toString());
    });
 
  
@@ -154,7 +150,3 @@ describe("User Tests", function ()
 ///  Tables Active  /  Payouts   /  activation Times   /   Table rewards   
 
 
-
-/*
-    function buyTable(uint8 table, uint refId) public payable nonReentrant 
-*/

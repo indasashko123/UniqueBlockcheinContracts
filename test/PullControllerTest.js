@@ -4,9 +4,8 @@ const {ethers} = require ("hardhat");
 
 describe("Pull controller Tests", function ()
 {
-    let acc1;let acc2;let acc3;let acc4;let acc5;let acc6;let acc7; let acc8;let acc9;
+    let owner;let acc1;let acc2;let acc3;let acc4;let acc5;let acc6;let acc7; let acc8;let acc9;
     let acc10;let acc11;let acc12;let acc13;let acc14;let acc15;let acc16;
-    let owner;
     let key;
 
     let pullStorageAddres;
@@ -20,21 +19,26 @@ describe("Pull controller Tests", function ()
 
 
         const PullStorage = await ethers.getContractFactory("PullStorage", owner);
-        pullStorage = await PullStorage.deploy(key.address, 1000 );
+        pullStorage = await PullStorage.deploy(1000 );
         await pullStorage.deployed();
         pullStorageAddres = pullStorage.address;
 
         const UserStorage = await ethers.getContractFactory("UserStorage", owner);
-        userStorage = await UserStorage.deploy(key.address );
+        userStorage = await UserStorage.deploy();
         await userStorage.deployed();
         userStorageAddres = userStorage.address;
 
+        const UserController = await ethers.getContractFactory("UserController", owner)
+        userController = await UserController.deploy(userStorageAddres);
+        await userController.deployed();
+        userController.SetKey();
+
         const PullController = await ethers.getContractFactory("PullController", owner);
-        pullController = await PullController.deploy(key.address, pullStorageAddres, userStorageAddres );
+        pullController = await PullController.deploy( pullStorageAddres, userStorageAddres );
         await pullController.deployed();
         pullControllerAddres = pullController.address;
-
-
+        pullController.SetKey();
+        userStorage.SetKey();
 
     });
 
@@ -43,18 +47,18 @@ describe("Pull controller Tests", function ()
 
    it("Buy ticket", async function()
    {
-    let userReg = await userStorage.AddUser(acc1.address, owner.address, key.address);
+    let userReg = await userController.Register(acc1.address, 1);
     await userReg.wait();
-    let tx = await pullController.BuyTicket(acc1.address, 100, key.address);
+    let tx = await pullController.BuyTicket(acc1.address, 100);
     await tx.wait();
     let inf =await pullController.GetTicketInfo(1,1);
     expect(inf[0]).to.eq(acc1.address);
     expect(inf[1]).to.eq(100);
     expect(inf[2]).to.eq(2);
 
-    let userReg1 = await userStorage.AddUser(acc2.address, owner.address, key.address);
+    let userReg1 = await userController.Register(acc2.address,1);
     await userReg1.wait();
-    let tx1 = await pullController.BuyTicket(acc2.address, 200, key.address);
+    let tx1 = await pullController.BuyTicket(acc2.address, 200);
     await tx1.wait();
 
     let inf1 = await pullController.GetTicketInfo(1,2);
@@ -66,14 +70,14 @@ describe("Pull controller Tests", function ()
 
    it("Complite pull", async function()
    {
-    let userReg = await userStorage.AddUser(acc1.address, owner.address, key.address);
+    let userReg = await userController.Register(acc1.address, 1);
     await userReg.wait();
-    let tx = await pullController.BuyTicket(acc1.address, 500, key.address);
+    let tx = await pullController.BuyTicket(acc1.address, 500);
     await tx.wait();
 
-    let userReg1 = await userStorage.AddUser(acc2.address, owner.address, key.address);
+    let userReg1 = await userController.Register(acc2.address, 1);
     await userReg1.wait();
-    let tx1 = await pullController.BuyTicket(acc2.address, 600, key.address);
+    let tx1 = await pullController.BuyTicket(acc2.address, 600);
     await tx1.wait();
 
     let existPull = await pullController.IsPullExist(2);
@@ -106,14 +110,14 @@ describe("Pull controller Tests", function ()
    expect(ticketeinfo3[1]).to.eq(100);
    expect(ticketeinfo3[2]).to.eq(3);
 
-    let userReg2 = await userStorage.AddUser(acc3.address, owner.address, key.address);
+    let userReg2 = await userController.Register(acc3.address,1);
     await userReg2.wait();
-    let userReg3 = await userStorage.AddUser(acc4.address, owner.address, key.address);
+    let userReg3 = await userController.Register(acc4.address, 1);
     await userReg3.wait();
 
-    let tx3 = await pullController.BuyTicket(acc3.address, 400, key.address);
+    let tx3 = await pullController.BuyTicket(acc3.address, 400);
     await tx3.wait();
-    let tx4 = await pullController.BuyTicket(acc4.address, 500, key.address);
+    let tx4 = await pullController.BuyTicket(acc4.address, 500);
     await tx4.wait();
     
     let ticketes3 = await pullController.GetTicketCountOnPull(3);

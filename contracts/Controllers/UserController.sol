@@ -3,12 +3,11 @@ pragma solidity ^0.8.0;
 
 import '../Interfaces/IUserController.sol';
 import '../Interfaces/IUserStorage.sol';
+import "../Protect/SecretKey.sol";
 
-
-contract UserController is IUserController
+contract UserController is IUserController, SecretKey
 {
     address payable _owner;
-    mapping (address => bool) private SecretKey;
     IUserStorage userStorage;
     uint[] public referralRewardPercents = 
     [
@@ -24,35 +23,36 @@ contract UserController is IUserController
     uint rewardableLinesCount = referralRewardPercents.length - 1;
 
 
-    constructor (address key, address userStorageAddress)
+    constructor (address userStorageAddress)
     {
-       SecretKey[key] = true;
        _owner = payable(msg.sender);
        userStorage = IUserStorage(userStorageAddress);
+       userStorage.SetKey();
     }  
 
-    function Register(address key, address userAddress, uint refId) public override payable 
+    function Register(address userAddress, uint refId) public override payable Pass()
     {  
-        require(SecretKey[key], "1");
         if (!IsUserExistById(refId))
         {
             refId = 1;
         }
         address refAddress = GetUserAddressById(refId);
-        userStorage.AddUser(userAddress, refAddress, key);
+        userStorage.AddUser(userAddress, refAddress);
         uint8 line = 1;
         address ref = refAddress;
         while (line <= rewardableLinesCount && ref != address(0)) 
         {
-           userStorage.AddReferal(ref, key);
+           userStorage.AddReferal(ref);
            ref = GetReferrer(ref);
            line++;
         }     
     }
-  
+    function SetKey() public override payable
+    {
+        this.Set(msg.sender);
+    }
 
-
-
+    
     ///// VIEW
     function IsUserExist(address addr) public override view returns(bool) ///
     {
@@ -101,10 +101,10 @@ contract UserController is IUserController
 
 
     //// ADMIN
-    function ChangeStorage(address newAddress, address key)public payable
+    function ChangeStorage(address newAddress)public payable
     {
-       require(SecretKey[key], "1");
        require(_owner == msg.sender, "only owner");
        userStorage = IUserStorage(newAddress);
+       userStorage.SetKey();
     }
 }

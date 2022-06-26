@@ -14,11 +14,6 @@
           "internalType": "uint256",
           "name": "UserId",
           "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "AddMemberReferalRewards",
@@ -37,11 +32,6 @@
           "internalType": "uint256",
           "name": "UserId",
           "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "AddMemberRewards",
@@ -60,11 +50,6 @@
           "internalType": "uint256",
           "name": "ticketCost",
           "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "BuyTicket",
@@ -236,6 +221,13 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "SetKey",
+      "outputs": [],
+      "stateMutability": "payable",
       "type": "function"
     }
   ],

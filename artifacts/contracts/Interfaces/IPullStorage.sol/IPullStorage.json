@@ -14,11 +14,6 @@
           "internalType": "uint256",
           "name": "value",
           "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "AddMemberDeposite",
@@ -37,11 +32,6 @@
           "internalType": "uint256",
           "name": "UserId",
           "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "AddMemberReferalRewards",
@@ -60,11 +50,6 @@
           "internalType": "uint256",
           "name": "UserId",
           "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "AddMemberRewards",
@@ -73,13 +58,7 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
-        }
-      ],
+      "inputs": [],
       "name": "AddNewPull",
       "outputs": [],
       "stateMutability": "payable",
@@ -357,14 +336,16 @@
           "internalType": "uint256",
           "name": "value",
           "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "SetCurrentPullValue",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "SetKey",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"
@@ -375,11 +356,6 @@
           "internalType": "uint256",
           "name": "UserId",
           "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "SetMember",
@@ -403,11 +379,6 @@
           "internalType": "uint256",
           "name": "userId",
           "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "SetTicket",

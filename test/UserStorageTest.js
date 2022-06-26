@@ -4,10 +4,8 @@ const {ethers} = require ("hardhat");
 
 describe("User Tests", function ()
 {
-    let acc1;let acc2;let acc3;let acc4;let acc5;let acc6;let acc7; let acc8;let acc9;
-    let acc10;let acc11;let acc12;let acc13;let acc14;let acc15;let acc16;
-    let owner;
-    let key;
+   let owner; let acc1;let acc2;let acc3;let acc4;let acc5;let acc6;let acc7; let acc8;let acc9;
+   let acc10;let acc11;let acc12;let acc13;let acc14;let acc15;  let acc16;
 
     let userStorageAddres;
     beforeEach(async function()
@@ -16,9 +14,11 @@ describe("User Tests", function ()
         acc11,acc12, acc13,acc14,acc15, acc16, owner, key
        ] = await ethers.getSigners();
         const UserStorage = await ethers.getContractFactory("UserStorage", owner);
-        userStorage = await UserStorage.deploy(key.address );
+        userStorage = await UserStorage.deploy();
         await userStorage.deployed();
         userStorageAddres = userStorage.address;
+
+        userStorage.SetKey();
     });
 
 
@@ -26,7 +26,7 @@ describe("User Tests", function ()
 
    it("UserAdd", async function()
    {
-    let tx = await userStorage.AddUser(acc1.address, owner.address, key.address);
+    let tx = await userStorage.AddUser(acc1.address, owner.address);
     await tx.wait();
     let Acc1Adrress = await userStorage.GetUserAddressById(2);
     expect(Acc1Adrress).to.eq(acc1.address);
@@ -35,9 +35,9 @@ describe("User Tests", function ()
 
    it("User api", async function()
    {
-    let tx = await userStorage.AddUser(acc1.address, owner.address, key.address);
+    let tx = await userStorage.AddUser(acc1.address, owner.address);
     await tx.wait();
-    let tx1 = await userStorage.AddReferal(acc1.address, key.address);
+    let tx1 = await userStorage.AddReferal(acc1.address);
     await tx1.wait();
     let refs =await userStorage.GetUserByAddress(acc1.address);
     expect(refs[2]).to.eq(1);
@@ -46,7 +46,7 @@ describe("User Tests", function ()
 
    it("User isRegistered", async function()
    {
-      let tx = await userStorage.AddUser(acc1.address, owner.address, key.address);
+      let tx = await userStorage.AddUser(acc1.address, owner.address);
       await tx.wait();
       let registerd = await userStorage.IsUserExist(acc1.address);
       let registerdAd = await userStorage.IsUserExistById(2);
@@ -61,7 +61,7 @@ describe("User Tests", function ()
 
    it ("User getReferal", async function()
    {
-      let tx = await userStorage.AddUser(acc1.address, owner.address, key.address);
+      let tx = await userStorage.AddUser(acc1.address, owner.address);
       await tx.wait();
       let referal = await userStorage.GetReferrer(acc1.address);
       expect(referal).to.eq(owner.address);
@@ -70,7 +70,7 @@ describe("User Tests", function ()
 
    it ("User API", async function()
    {
-      let tx = await userStorage.AddUser(acc1.address, owner.address, key.address);
+      let tx = await userStorage.AddUser(acc1.address, owner.address);
       await tx.wait();
       let userId = await userStorage.GetUserIdByAddress(acc1.address);
       let userAddress = await userStorage.GetUserAddressById(userId);
@@ -81,7 +81,7 @@ describe("User Tests", function ()
       expect(t1[2]).to.eq(t2[2]);
       expect(t1[0]).to.eq(t2[0]);
 
-      let tx1 = await userStorage.AddUser(acc2.address, acc1.address, key.address);
+      let tx1 = await userStorage.AddUser(acc2.address, acc1.address);
       await tx1.wait();
       let userId2 = await userStorage.GetUserIdByAddress(acc2.address);
       let userAddress2 = await userStorage.GetUserAddressById(userId2);

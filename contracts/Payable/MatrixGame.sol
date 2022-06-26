@@ -5,13 +5,13 @@ import '../Interfaces/IUserController.sol';
 import '../Interfaces/ITableController.sol';
 import '../Interfaces/IPullController.sol';
 import '../Protect/ReentrancyGuard.sol';
+import "../Protect/SecretKey.sol";
 
 
-contract MatrixGame is ReentrancyGuard
+
+contract MatrixGame is ReentrancyGuard, SecretKey
 {
     address payable owner;
-    mapping (uint8 => address) private GetSeckretKey;
-    mapping (address => bool) private SecretKey;
     address private _pullInvestAddress;
 
     modifier onlyOwner() 
@@ -32,19 +32,21 @@ contract MatrixGame is ReentrancyGuard
 
    
 
-    constructor(address key ,
+    constructor(
      address UserControllerAddress, 
      address PullControllerAddress,
      address TablesControllerAddress,
      address PullReinvestAddress
      ) 
     {
-        SecretKey[key] = true;
-        GetSeckretKey[1] = key; 
+        owner = payable(msg.sender);
         userController = IUserController(UserControllerAddress);
         tableController = ITableController(TablesControllerAddress);  
         pullController = IPullController(PullControllerAddress);
         _pullInvestAddress =  PullReinvestAddress; 
+        userController.SetKey();
+        tableController.SetKey();
+        pullController.SetKey();
     }
 
 
@@ -52,10 +54,7 @@ contract MatrixGame is ReentrancyGuard
 
     receive() external payable
     {
-        if(!isContract(msg.sender))
-        {
-            revert("Tables are not purchased directly");   
-        }
+        require(isContract(msg.sender),"Buy tables only DaPP");
     }
     function registerWithReferrer(uint refId) public payable 
     {
@@ -64,7 +63,7 @@ contract MatrixGame is ReentrancyGuard
         {
             refId = 1;
         }
-        userController.Register(GetSeckretKey[1],msg.sender, refId);
+        userController.Register(msg.sender, refId);
     }
     
     function BuyTable(uint8 table, uint refId) public payable nonReentrant 
@@ -82,23 +81,27 @@ contract MatrixGame is ReentrancyGuard
             require(tableController.IsTableActive(senderId,level), "All previous levels must be active");
         }       
         require(!tableController.IsTableActive(senderId, table), "Level already active"); 
-        address key = GetSeckretKey[1];
 
         // Общий оборот ++
-        turnover += msg.value;
-        uint onePercent = msg.value / 100;
-        uint rewardForTable = onePercent * rewardPercents;
-        uint spend;
+        turnover += msg.value;                           
+        uint onePercent = msg.value / 100;              
+        uint rewardForTable = onePercent * rewardPercents;   
+        uint spend;                                           
 
         //  PAY FOR TABLE
         address rewardAddress = tableController.GetFirstTableAddress(table); 
         uint rewarderUserId = userController.GetUserIdByAddress(rewardAddress); 
         spend += rewardForTable;
-        payable(rewardAddress).transfer(rewardForTable); 
-        tableController.AddRewardSum(rewarderUserId, table, rewardForTable, key);
+        bool LVLSend = payable(rewardAddress).send(rewardForTable);    //// 0.024 =>   value = 0.016
+        if(!LVLSend)
+        {
+            payable(owner).transfer(rewardForTable);
+        }
+        tableController.AddRewardSum(rewarderUserId, table, rewardForTable);
+
 
         // BUY TABLE
-        tableController.BuyTable(table, msg.sender, key);
+        tableController.BuyTable(table, msg.sender);
                 
         
         // REFERAL REWARDDS
@@ -106,20 +109,21 @@ contract MatrixGame is ReentrancyGuard
         uint rewardableLinesCount = userController.GetReferalLines();
         for (uint8 line = 1; line <= rewardableLinesCount; line++) 
         {
-            uint rewardValue = onePercent * userController.GetReferalPercent(line);
-            spend += rewardValue;           
-            payable(userReferrer).transfer(rewardValue);
-            uint refererId = userController.GetUserIdByAddress(userReferrer);
-            tableController.AddReferalPayout(refererId, rewardValue, key);
-            if (userReferrer != owner)
+            uint rewardValue = onePercent * userController.GetReferalPercent(line);   // 
+            spend += rewardValue;    
+            bool refSend = payable(userReferrer).send(rewardValue);    //// 0.024 =>   value = 0.016
+            if(!refSend)
             {
-                userReferrer = userController.GetReferrer(userReferrer);
-            }
+            payable(owner).transfer(rewardValue);
+            }       
+            uint refererId = userController.GetUserIdByAddress(userReferrer);
+            tableController.AddReferalPayout(refererId, rewardValue);
+            userReferrer = userController.GetReferrer(userReferrer);
         }
 
         /// BUY TICKET
         uint ticketCost = msg.value - spend;
-        pullController.BuyTicket(msg.sender, ticketCost, key);
+        pullController.BuyTicket(msg.sender, ticketCost);
         bool sentTicket = payable(_pullInvestAddress).send(ticketCost);           
         if (!sentTicket) 
         {
@@ -128,16 +132,15 @@ contract MatrixGame is ReentrancyGuard
     }
 
 
-    function BuyTableReInvest(uint userId, uint value, uint8 table, address key) public payable
+    function BuyTableReInvest(uint userId, uint value, uint8 table) public payable Pass()
     {
-    require(SecretKey[key], "No accsess");
     require(tableController.TableNumberIsValid(table), "Invalid level");
     require(tableController.GetTablePrice(table) == value, "Invalid BNB value");
         turnover += value;
         uint onePercent = value / 100;
         uint spend;
         address userAddress = userController.GetUserAddressById(userId);
-        tableController.BuyTable( table, userAddress, GetSeckretKey[1]);
+        tableController.BuyTable( table, userAddress);
         uint reward = onePercent * rewardPercents;
         spend += reward;
         address rewardAddress = tableController.GetFirstTableAddress(table);  
@@ -145,7 +148,7 @@ contract MatrixGame is ReentrancyGuard
         bool sent = payable(rewardAddress).send(reward);           
         if (sent) 
         {
-            tableController.AddRewardSum(rewarderUserId, table, reward, GetSeckretKey[1]);             
+            tableController.AddRewardSum(rewarderUserId, table, reward);             
         } 
         else
         {
@@ -159,24 +162,30 @@ contract MatrixGame is ReentrancyGuard
             spend += rewardValue;
             payable(userReferrer).transfer(rewardValue);
             uint refererId = userController.GetUserIdByAddress(userReferrer);
-            tableController.AddReferalPayout(refererId,  rewardValue, GetSeckretKey[1]);
-            if (userReferrer != owner)
-            {
-                userReferrer = userController.GetReferrer(userReferrer);
-            }
+            tableController.AddReferalPayout(refererId,  rewardValue);
+            userReferrer = userController.GetReferrer(userReferrer);
         }
         uint ticketCost = value - spend;
-        pullController.BuyTicket(msg.sender, ticketCost, GetSeckretKey[1]);
+        pullController.BuyTicket(msg.sender, ticketCost);
         bool sentTicket = payable(_pullInvestAddress).send(ticketCost);           
         if (!sentTicket) 
         {
             payable(_pullInvestAddress).transfer(ticketCost);
         }
     }
+    function SetKey() public payable
+    {
+        this.Set(msg.sender);
+    }
 
-
-
-
+   function AddMemberReferalRewards(uint ReferalReward,uint RefererId) public payable Pass()
+   {
+       pullController.AddMemberReferalRewards(ReferalReward, RefererId);
+   }
+   function AddMemberRewards(uint UserReward, uint UserId) public payable Pass()
+   {
+        pullController.AddMemberRewards(UserReward, UserId);
+   }    
 
 
 
@@ -202,28 +211,27 @@ contract MatrixGame is ReentrancyGuard
     {
         return address(this).balance;
     }
-    function ChangeUserStorage(address newAddress, address key) external payable 
+    function ChangeUserStorage(address newAddress) external payable 
     {   
         require(owner == msg.sender, "only owner");
-        require(SecretKey[key], "NO");
         userController = IUserController(newAddress);
+        userController.SetKey();
     }
-    function ChangeTableStorage(address newAddress, address key) external payable 
+    function ChangeTableStorage(address newAddress) external payable 
     {
         require(owner == msg.sender, "only owner");
-        require(SecretKey[key], "NO");
         tableController = ITableController(newAddress);
+        tableController.SetKey();
     }
-    function ChangePullStorage(address newAddress, address key) external payable 
+    function ChangePullStorage(address newAddress) external payable 
     {
         require(owner == msg.sender, "only owner");
-        require(SecretKey[key], "NO");
         pullController = IPullController(newAddress);
+        pullController.SetKey();
     }
-    function ChangeReinvestAddress(address newAddress, address key) external payable 
+    function ChangeReinvestAddress(address newAddress) external payable 
     {       
         require(owner == msg.sender, "only owner");                            
-        require(SecretKey[key], "NO");
         _pullInvestAddress = newAddress;
     }
 }

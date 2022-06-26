@@ -2,12 +2,10 @@ const  {expect} = require("chai");
 const { BigNumber } = require("ethers");
 const {ethers} = require ("hardhat");
 
-describe("User Tests", function ()
+describe("UserController Tests", function ()
 {
-    let acc1;let acc2;let acc3;let acc4;let acc5;let acc6;let acc7; let acc8;let acc9;
+    let owner;let acc1;let acc2;let acc3;let acc4;let acc5;let acc6;let acc7; let acc8;let acc9;
     let acc10;let acc11;let acc12;let acc13;let acc14;let acc15;let acc16;
-    let owner;
-    let key;
 
     let userControllerAddres;
     beforeEach(async function()
@@ -18,21 +16,22 @@ describe("User Tests", function ()
     
         /// STORAGE
         const UserStorage = await ethers.getContractFactory("UserStorage", owner);
-        userStorage = await UserStorage.deploy(key.address );
+        userStorage = await UserStorage.deploy();
         await userStorage.deployed();
         userStorageAddres = userStorage.address;
 
         /// CONTROLLER
         const UserController = await ethers.getContractFactory("UserController", owner);
-        userController = await UserController.deploy(key.address, userStorageAddres);
+        userController = await UserController.deploy(userStorageAddres);
         await userController.deployed();
         userControllerAddres = userController.address;
+        userController.SetKey();
     });
 
 
    it("Reg", async function()
    {
-    let tx = await userController.Register(key.address, acc1.address, 1 );
+    let tx = await userController.Register(acc1.address, 1 );
     await tx.wait();
     let Acc1Adrress = await userStorage.GetUserAddressById(2);
     expect(Acc1Adrress).to.eq(acc1.address);
@@ -40,11 +39,11 @@ describe("User Tests", function ()
 
    it("Reg 2", async function()
    {
-    let tx = await userController.Register(key.address, acc1.address, 1 );
+    let tx = await userController.Register( acc1.address, 1 );
     await tx.wait();
-    let tx2 = await userController.Register(key.address, acc2.address, 1 );
+    let tx2 = await userController.Register( acc2.address, 1 );
     await tx2.wait();
-    let tx3 = await userController.Register(key.address, acc3.address, 1);
+    let tx3 = await userController.Register( acc3.address, 1);
     await tx3.wait();
     let Acc1Adrress = await userStorage.GetUserAddressById(2);
     let Acc2Adrress = await userStorage.GetUserAddressById(3);
@@ -58,15 +57,15 @@ describe("User Tests", function ()
 
    it("Reg 3", async function()
    {
-    let tx = await userController.Register(key.address, acc1.address, 1 );
+    let tx = await userController.Register( acc1.address, 1 );
     await tx.wait();
-    let tx2 = await userController.Register(key.address, acc2.address, 1 );
+    let tx2 = await userController.Register(acc2.address, 1 );
     await tx2.wait();
-    let tx3 = await userController.Register(key.address, acc3.address, 1);
+    let tx3 = await userController.Register( acc3.address, 1);
     await tx3.wait();
-    let tx4 = await userController.Register(key.address, acc2.address, 1);
+    let tx4 = await userController.Register(acc2.address, 1);
     await tx4.wait();
-    let tx5 = await userController.Register(key.address, acc3.address, 1);
+    let tx5 = await userController.Register(acc3.address, 1);
     await tx5.wait();
     let Acc1Adrress = await userStorage.GetUserAddressById(2);
     let Acc2Adrress = await userStorage.GetUserAddressById(3);
@@ -88,23 +87,23 @@ describe("User Tests", function ()
 
    it("Referer", async function()
    {
-    let tx = await userController.Register(key.address, acc1.address, 1);
+    let tx = await userController.Register( acc1.address, 1);
     await tx.wait();
     let u1Id = await userController.GetUserIdByAddress(acc1.address);
 
-    let tx2 = await userController.Register(key.address, acc2.address, u1Id);
+    let tx2 = await userController.Register( acc2.address, u1Id);
     await tx2.wait();
     let u2Id = await userController.GetUserIdByAddress(acc2.address);
 
-    let tx3 = await userController.Register(key.address, acc3.address, u2Id);
+    let tx3 = await userController.Register( acc3.address, u2Id);
     await tx3.wait();
     let u3Id = await userController.GetUserIdByAddress(acc3.address);
 
-    let tx4 = await userController.Register(key.address, acc4.address, u3Id);
+    let tx4 = await userController.Register( acc4.address, u3Id);
     await tx4.wait();
     let u4Id = await userController.GetUserIdByAddress(acc4.address);
 
-    let tx5 = await userController.Register(key.address, acc5.address, u4Id);
+    let tx5 = await userController.Register( acc5.address, u4Id);
     await tx5.wait();
 
 

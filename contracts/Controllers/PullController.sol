@@ -4,20 +4,20 @@ pragma solidity ^0.8.0;
 import '../Interfaces/IPullController.sol';
 import '../Interfaces/IPullStorage.sol';
 import '../Interfaces/IUserStorage.sol';
+import "../Protect/SecretKey.sol";
 
-contract PullController is IPullController
+contract PullController is IPullController, SecretKey
 {
-    mapping (address => bool) private SecretKey;
     address payable owner;
     IPullStorage pullStorage;
     IUserStorage userStorage;
 
-    constructor(address key, address pullStorageAddress, address userStorageAddress)
+    constructor( address pullStorageAddress, address userStorageAddress)
     {
-        SecretKey[key] = true;
         owner = payable(msg.sender);
         pullStorage = IPullStorage(pullStorageAddress);
         userStorage = IUserStorage(userStorageAddress);
+        pullStorage.SetKey();
     }
     uint[] public referralRewardPercents = 
     [
@@ -36,47 +36,47 @@ contract PullController is IPullController
 
 
 
-    function BuyTicket(address userAddress, uint value, address key) override public payable
+    function BuyTicket(address userAddress, uint value) override public payable Pass()
     {
-        require(SecretKey[key], "1");
         uint userId = userStorage.GetUserIdByAddress(userAddress);
         if (!pullStorage.IsMemberExist(userId))
         {
-            pullStorage.SetMember(userId, key);
+            pullStorage.SetMember(userId);
         }
         uint lastValue = pullStorage.GetLastCurrentPullSum();
         if (lastValue > value)
         {
-            pullStorage.SetTicket(userAddress, value,  userId,  key);
-            pullStorage.AddMemberDeposite(userId, value, key);
-            pullStorage.SetCurrentPullValue(value, key);
+            pullStorage.SetTicket(userAddress, value,  userId);
+            pullStorage.AddMemberDeposite(userId, value);
+            pullStorage.SetCurrentPullValue(value);
         }
         else
         {
             uint residual = value - lastValue;
-            pullStorage.SetTicket(userAddress, lastValue,  userId,  key);
-            pullStorage.SetCurrentPullValue(lastValue, key);
-            pullStorage.AddNewPull(key);
+            pullStorage.SetTicket(userAddress, lastValue,  userId);
+            pullStorage.SetCurrentPullValue(lastValue);
+            pullStorage.AddNewPull();
             if (residual > 0)
             {
-                pullStorage.SetTicket(userAddress, residual,  userId,  key);
-                pullStorage.SetCurrentPullValue(residual, key);
-                pullStorage.AddMemberDeposite(userId, value, key);
+                pullStorage.SetTicket(userAddress, residual,  userId);
+                pullStorage.SetCurrentPullValue(residual);
+                pullStorage.AddMemberDeposite(userId, value);
             }
 
         }
     }
-    function AddMemberReferalRewards(uint value, uint UserId, address key) override public payable
+    function AddMemberReferalRewards(uint value, uint UserId ) override public payable Pass()
     {
-        require(SecretKey[key], "1");
-        pullStorage.AddMemberReferalRewards(value, UserId, key);
+        pullStorage.AddMemberReferalRewards(value, UserId );
     }
-    function AddMemberRewards(uint value, uint UserId, address key) override public payable
+    function AddMemberRewards(uint value, uint UserId ) override public payable Pass()
     {
-        require(SecretKey[key], "1");
-        pullStorage.AddMemberRewards(value, UserId, key);
+        pullStorage.AddMemberRewards(value, UserId);
     }
-
+    function SetKey() public override payable
+    {
+        this.Set(msg.sender);
+    }
 
 
 
@@ -112,15 +112,14 @@ contract PullController is IPullController
 
 
         //// ADMIN
-    function ChangePullStorage(address newAddress, address key)public payable
+    function ChangePullStorage(address newAddress)public payable
     {
-       require(SecretKey[key], "1");
        require(owner == msg.sender, "only owner");
        pullStorage = IPullStorage(newAddress);
+       pullStorage.SetKey();
     }
-    function ChangeUserStorage(address newAddress, address key)public payable
+    function ChangeUserStorage(address newAddress)public payable
     {
-       require(SecretKey[key], "1");
        require(owner == msg.sender, "only owner");
        userStorage = IUserStorage(newAddress);
     }

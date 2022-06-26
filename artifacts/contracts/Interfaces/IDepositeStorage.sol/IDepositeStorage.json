@@ -51,14 +51,16 @@
           "internalType": "uint256",
           "name": "userId",
           "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "ReduceUserDeposite",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "SetKey",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"
@@ -74,11 +76,6 @@
           "internalType": "uint256",
           "name": "value",
           "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "SetReinvestCell",

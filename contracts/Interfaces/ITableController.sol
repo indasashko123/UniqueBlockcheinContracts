@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 interface ITableController 
 {
     //// PAYABLE
-    function BuyTable(uint8 table, address userAddress, address key)external payable;
-    function AddRewardSum(uint userId, uint8 table, uint reward, address key) external payable;
-    function AddReferalPayout(uint userId,  uint rewardValue, address key)external payable;
+    function BuyTable(uint8 table, address userAddress)external payable;
+    function AddRewardSum(uint userId, uint8 table, uint reward) external payable;
+    function AddReferalPayout(uint userId,  uint rewardValue)external payable;
 
 
     //// VIEW   
@@ -24,4 +24,5 @@ interface ITableController
     function GetUserRewards(uint userId)external view returns(uint, uint);
     function GetTablesQueue(uint8 table)external view returns(address[] memory);
     function GetHeadIndex(uint8 table)external view returns(uint);
+    function SetKey() external payable;
 }

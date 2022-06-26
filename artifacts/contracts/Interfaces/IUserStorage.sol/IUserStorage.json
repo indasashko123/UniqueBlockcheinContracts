@@ -9,11 +9,6 @@
           "internalType": "address",
           "name": "userAddress",
           "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "AddReferal",
@@ -31,11 +26,6 @@
         {
           "internalType": "address",
           "name": "Ref",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
           "type": "address"
         }
       ],
@@ -208,6 +198,13 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "SetKey",
+      "outputs": [],
+      "stateMutability": "payable",
       "type": "function"
     }
   ],

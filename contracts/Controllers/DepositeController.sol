@@ -3,33 +3,34 @@ pragma solidity ^0.8.0;
 
 import '../Interfaces/IDepositeController.sol';
 import '../Interfaces/IDepositeStorage.sol';
+import '../Protect/SecretKey.sol';
 
-contract DepositeController is IDepositeController
+
+contract DepositeController is SecretKey, IDepositeController
 {
     address payable owner;
-    mapping (address => bool) private SecretKey;
-
     IDepositeStorage depositeStorage;
 
-    constructor (address key, address depositeStorageAddress)
+    constructor ( address depositeStorageAddress)
     {
         owner = payable(msg.sender);
-        SecretKey[key] = true; 
         depositeStorage = IDepositeStorage(depositeStorageAddress);
+        depositeStorage.SetKey();
     }
 
 
-    function SetReinvestCell(uint userId, uint value, address key) override public payable
+    function SetReinvestCell(uint userId, uint value) override public payable Pass()
     {
-        require(SecretKey[key],"1");
-        depositeStorage.SetReinvestCell(userId, value, key);
+        depositeStorage.SetReinvestCell(userId, value);
     }
-    function ReduceUserDeposite(uint value, uint userId, address key) override public payable
+    function ReduceUserDeposite(uint value, uint userId) override public payable Pass()
     {
-        require(SecretKey[key],"1");
-        depositeStorage.ReduceUserDeposite(value, userId, key);
+        depositeStorage.ReduceUserDeposite(value, userId);
     }
-    
+    function SetKey() public payable override
+    {
+        this.Set(msg.sender);
+    }
 
     function GetUserDeposite(uint userId) public override view returns(uint)
     {
@@ -42,9 +43,8 @@ contract DepositeController is IDepositeController
 
 
     //// ADMIN
-    function ChangeDeposteStorage(address newAddress, address key)public payable
+    function ChangeDeposteStorage(address newAddress)public payable
     {
-       require(SecretKey[key], "1");
        require(owner == msg.sender, "only owner");
        depositeStorage = IDepositeStorage(newAddress);
     }

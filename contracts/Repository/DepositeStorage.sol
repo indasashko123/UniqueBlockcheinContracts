@@ -2,36 +2,36 @@
 pragma solidity ^0.8.0;
 
 import '../Interfaces/IDepositeStorage.sol';
+import '../Protect/SecretKey.sol';
 
-contract DepositeStorage is IDepositeStorage
+contract DepositeStorage is  IDepositeStorage, SecretKey
 {
-    mapping (address => bool) private SecretKey;
     address payable owner;
     mapping (uint => uint) UserSum;           /// UserId => deposite
     uint TotalValueCount;
     uint TotalReinvests;
     
-    constructor(address key)
+    constructor()
     {
         owner = payable(msg.sender);
-        SecretKey[key] = true;
     }
 
 
 
-    function SetReinvestCell(uint userId, uint value, address key) public override payable
+    function SetReinvestCell(uint userId, uint value) public override payable Pass()
     {
-        require(SecretKey[key],"1");
         UserSum[userId] += value;
         TotalValueCount += value;
     }
-    function ReduceUserDeposite(uint value, uint userId, address key) public override payable
+    function ReduceUserDeposite(uint value, uint userId) public override payable Pass()
     {
-        require(SecretKey[key],"1");
         UserSum[userId] -= value;
         TotalValueCount -= value;
     }
-
+    function SetKey() payable override public 
+    {
+        this.Set(msg.sender);
+    }
 
     //// VIEW
     function GetUserDeposite(uint userId) override public view returns(uint)
@@ -41,5 +41,13 @@ contract DepositeStorage is IDepositeStorage
     function GetTotalState() public override view returns(uint,uint)
     {
         return (TotalValueCount, TotalReinvests);
+    }
+    
+
+
+    function ChangeKey(address newKey) public payable 
+    {
+        require(msg.sender == owner, "2");
+        this.Change(newKey);
     }
 }

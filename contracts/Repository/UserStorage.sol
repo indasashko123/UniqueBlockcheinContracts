@@ -2,12 +2,11 @@
 pragma solidity ^0.8.0;
 
 import '../Interfaces/IUserStorage.sol';
-
-contract UserStorage is IUserStorage
+import "../Protect/SecretKey.sol";
+contract UserStorage is IUserStorage, SecretKey
 {
     
    address payable _owner;
-   mapping (address => bool) private SecretKey;
 
     struct User
     {
@@ -21,14 +20,13 @@ contract UserStorage is IUserStorage
     mapping (uint => address) userAddressById;     ///  UserID => user adres
     uint newUserId = 1; 
 
-    constructor (address key)
+    constructor ()
     {
-       SecretKey[key] = true;
        _owner = payable(msg.sender);
        User memory user = User 
        ({
         id : newUserId++,
-        refererAddress : address(0),
+        refererAddress : _owner,
         referrals : 0
        });
        userByAddres[_owner] = user;
@@ -37,9 +35,8 @@ contract UserStorage is IUserStorage
     }  
 
                                     /// Payable
-   function AddUser(address userAddress, address ref, address key) override public payable ///
+   function AddUser(address userAddress, address ref) override public payable Pass()
    {
-       require(SecretKey[key], "1");  // TEST
        if (!IsUserExist(userAddress))
        {
             if (!IsUserExist(ref))
@@ -58,13 +55,22 @@ contract UserStorage is IUserStorage
        }
       
    }
-   function AddReferal(address userAddress, address key) override public payable    ///
-   {
-       require(SecretKey[key], "1");  
+   function AddReferal(address userAddress) override public payable Pass()
+   {  
        uint userId = userByAddres[userAddress].id;
        userByAddres[userAddress].referrals++;
        userById[userId].referrals++;
    }
+   function SetKey() override public payable
+   {
+    this.Set(msg.sender);
+   }
+   function ChangeKey(address newKey) public payable 
+    {
+        require(msg.sender == _owner, "2");
+        this.Change(newKey);
+    }
+
 
                                         /// VIEW
    function IsUserExist(address addr) override public view returns(bool)    

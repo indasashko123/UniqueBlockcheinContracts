@@ -11,8 +11,6 @@ import '../Interfaces/IDepositeController.sol';
 contract Reinvest is ReentrancyGuard
 {
     address payable owner;
-    mapping (uint8 => address) private GetSeckretKey;
-    mapping (address => bool) private SecretKey;
 
 
     IPullController pullController;
@@ -21,7 +19,6 @@ contract Reinvest is ReentrancyGuard
     IDepositeController depositeController;
     MatrixGame game;
     constructor (
-        address key, 
         address pullControllerAddress, 
         address userControllerAddress, 
         address tableControllerAddress,
@@ -30,13 +27,13 @@ contract Reinvest is ReentrancyGuard
         )
     {
         owner = payable(msg.sender);
-        SecretKey[key] = true;
-        GetSeckretKey[1] = key; 
         pullController = IPullController(pullControllerAddress);
         userController = IUserController(userControllerAddress);
         tableController = ITableController(tableControllerAddress);
         depositeController = IDepositeController(depositeControllerAddres);
         game = MatrixGame(gameAddress);
+        depositeController.SetKey();
+        game.SetKey();
     }
     receive() external payable
     {    
@@ -58,7 +55,7 @@ contract Reinvest is ReentrancyGuard
             uint UserReward = TotalValue/100*RewardPercent;
    
             uint UserReinvestValue = ToReinvestValue/100*RewardPercent;
-            depositeController.SetReinvestCell(UserId, UserReinvestValue, GetSeckretKey[1]);
+            depositeController.SetReinvestCell(UserId, UserReinvestValue);
 
             uint line = 1;
             uint referalPayCount;
@@ -75,7 +72,7 @@ contract Reinvest is ReentrancyGuard
                     owner.transfer(ReferalReward);
                 }
                 uint RefererId = userController.GetUserIdByAddress(ReferalAddress);
-                pullController.AddMemberReferalRewards(ReferalReward, RefererId, GetSeckretKey[1]);
+                game.AddMemberReferalRewards(ReferalReward, RefererId);
                 ReferalAddress = userController.GetReferrer(ReferalAddress);
                 line ++;
                 referalPayCount +=  ReferalReward;
@@ -87,7 +84,7 @@ contract Reinvest is ReentrancyGuard
             {
                 owner.transfer(UserReward);
             }
-            pullController.AddMemberRewards(UserReward, UserId, GetSeckretKey[1]);         
+            game.AddMemberRewards(UserReward, UserId);         
         }
     }
     function ReinvestTable(uint8 table, address userAddress)external payable
@@ -102,8 +99,8 @@ contract Reinvest is ReentrancyGuard
         {
             payable(address(game)).transfer(value);
         }      
-        depositeController.ReduceUserDeposite(value, userId, GetSeckretKey[1]);
-        game.BuyTableReInvest(userId, value, table, GetSeckretKey[1]);
+        depositeController.ReduceUserDeposite(value, userId);
+        game.BuyTableReInvest(userId, value, table);
     } 
     
 
@@ -121,28 +118,25 @@ contract Reinvest is ReentrancyGuard
     {
         return address(this).balance;
     }
-    function ChangeUserStorage(address newAddress, address key) external payable 
+    function ChangeUserStorage(address newAddress) external payable 
     {   
         require(owner == msg.sender, "only owner");
-        require(SecretKey[key], "NO");
         userController = IUserController(newAddress);
     }
-    function ChangeTableStorage(address newAddress, address key) external payable 
+    function ChangeTableStorage(address newAddress) external payable 
     {
         require(owner == msg.sender, "only owner");
-        require(SecretKey[key], "NO");
         tableController = ITableController(newAddress);
     }
-    function ChangePullStorage(address newAddress, address key) external payable 
+    function ChangePullStorage(address newAddress) external payable 
     {
         require(owner == msg.sender, "only owner");
-        require(SecretKey[key], "NO");
         pullController = IPullController(newAddress);
     }
-    function ChangeDepositeStorage(address newAddress, address key) external payable 
+    function ChangeDepositeStorage(address newAddress) external payable 
     {
         require(owner == msg.sender, "only owner");
-        require(SecretKey[key], "NO");
         depositeController = IDepositeController(newAddress);
+        depositeController.SetKey();
     }
 }

@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 import '../Interfaces/IPullStorage.sol';
+import '../Protect/SecretKey.sol';
 
-contract PullStorage  is IPullStorage
+contract PullStorage  is IPullStorage, SecretKey
 { 
-    mapping (address => bool) private SecretKey;
     address payable private owner;
     struct Member 
     {
@@ -39,9 +39,8 @@ contract PullStorage  is IPullStorage
     uint private FoundingSum;
     GlobalStatistic private globalStat;
 
-    constructor(address key, uint Sum )
+    constructor(uint Sum)
     {
-        SecretKey[key] = true;
         owner = payable(msg.sender);
         FoundingSum = Sum;
         Pull memory newPull = Pull
@@ -55,9 +54,8 @@ contract PullStorage  is IPullStorage
     }
 
 
-    function SetMember(uint UserId, address key) override payable public 
+    function SetMember(uint UserId) override payable public Pass()
     {
-        require(SecretKey[key], "1");
         Members[UserId] = Member
         ({
             SumDeposite : 0,
@@ -65,9 +63,8 @@ contract PullStorage  is IPullStorage
             RewardsFromRef : 0
         });   
     }
-    function SetTicket(address userAdr, uint value, uint userId, address key) override public payable
+    function SetTicket(address userAdr, uint value, uint userId) override public payable Pass()
     {
-        require(SecretKey[key], "1");
         globalStat.TotalFoundSum += value;
         Ticket memory ticket = Ticket
         ({
@@ -78,20 +75,17 @@ contract PullStorage  is IPullStorage
         Tickets[Pulls[newPullId].id].push(ticket);
         
     }
-    function AddMemberDeposite(uint userId, uint value, address key) override public payable
+    function AddMemberDeposite(uint userId, uint value) override public payable Pass()
     {
-        require(SecretKey[key], "1");
         Members[userId].SumDeposite += value;
     } 
-    function SetCurrentPullValue(uint value, address key)  override public payable 
+    function SetCurrentPullValue(uint value)  override public payable Pass()
     {
-        require(SecretKey[key], "1");
         Pulls[newPullId].CollectSum = Pulls[newPullId].CollectSum + value;
         Pulls[newPullId].LastFound = Pulls[newPullId].LastFound - value;
     }
-    function AddNewPull(address key) override public payable 
+    function AddNewPull() override public payable Pass()
     {  
-        require(SecretKey[key], "1");
         Pull memory newPull = Pull
             ({
             id: ++newPullId,
@@ -102,18 +96,23 @@ contract PullStorage  is IPullStorage
         Pulls[newPull.id] = newPull;
         globalStat.TotalPullsClose ++;
     } 
-    function AddMemberReferalRewards(uint value, uint UserId, address key) override public payable
+    function AddMemberReferalRewards(uint value, uint UserId) override public payable Pass()
     {
-        require(SecretKey[key], "1");
         Members[UserId].RewardsFromRef = Members[UserId].RewardsFromRef + value;
     }
-    function AddMemberRewards(uint value, uint UserId, address key) override public payable
+    function AddMemberRewards(uint value, uint UserId) override public payable Pass()
     {
-        require(SecretKey[key], "1");
         Members[UserId].RewardsForPulls = Members[UserId].RewardsForPulls + value;
     }
-
-
+    function SetKey() public override payable
+    {
+        this.Set(msg.sender);
+    }
+    function ChangeKey(address newKey) public payable 
+    {
+        require(msg.sender == owner, "2");
+        this.Change(newKey);
+    }
 
 
        ///// VIEW

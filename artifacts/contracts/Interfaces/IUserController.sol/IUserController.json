@@ -218,11 +218,6 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "key",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
           "name": "userAddress",
           "type": "address"
         },
@@ -233,6 +228,13 @@
         }
       ],
       "name": "Register",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "SetKey",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"

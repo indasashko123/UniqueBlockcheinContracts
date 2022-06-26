@@ -4,12 +4,11 @@ pragma solidity ^0.8.0;
 import '../Interfaces/ITableController.sol';
 import '../Interfaces/ITableStorage.sol';
 import '../Interfaces/IUserStorage.sol';
+import '../Protect/SecretKey.sol';
 
-
-contract TableController is ITableController
+contract TableController is ITableController, SecretKey
 {
     address payable _owner;
-    mapping (address => bool) private SecretKey;
     ITableStorage tableStorage;
     IUserStorage userStorage;
     uint[] public TablePrice = 
@@ -34,45 +33,50 @@ contract TableController is ITableController
     ];
     uint totalTables = TablePrice.length - 1;    /// 16
      
-    constructor(address key, address tableStorageAddress, address userStorageAddress)
+    constructor(address tableStorageAddress, address userStorageAddress)
     {
         _owner = payable(msg.sender);
-        SecretKey[key] = true;
         tableStorage = ITableStorage(tableStorageAddress);
         userStorage = IUserStorage(userStorageAddress);
-        AddWhite(1,20, key, _owner);
-
+        tableStorage.SetKey();
+        AddWhite(1,20, _owner);
+        
     }
 
 
     /// Payable
-    function BuyTable(uint8 table, address userAddress, address key) override public payable
+    function BuyTable(uint8 table, address userAddress ) override public payable Pass()
     { 
-        require(SecretKey[key], "1");
         uint userId = userStorage.GetUserIdByAddress(userAddress);
-        tableStorage.AddTable(table, 3 ,userAddress, userId, key);
+        tableStorage.AddTable(table, 3 ,userAddress, userId);
         address rewardAddress = tableStorage.GetFirstTableAddress(table);  
         uint rewarderUserId = userStorage.GetUserIdByAddress(rewardAddress);
-        tableStorage.ReducePayout(key, table, rewarderUserId);
+        tableStorage.ReducePayout(table, rewarderUserId);
         if (tableStorage.IsTableActiveOver(rewarderUserId, table)) 
         {
-            tableStorage.DeactiveTable(rewarderUserId, table, key);
+            tableStorage.DeactiveTable(rewarderUserId, table);
         }
         else 
         {
-            tableStorage.PushTable(key, table, rewardAddress);
+            tableStorage.PushTable(table, rewardAddress);
         }
-        tableStorage.SwitchTablesQueue(table, key);
+        tableStorage.SwitchTablesQueue(table);
     } 
-    function AddReferalPayout(uint userId, uint rewardValue, address key) override public payable
+    function AddReferalPayout(uint userId, uint rewardValue) override public payable Pass()
     {
-        tableStorage.AddReferalPayout(userId, rewardValue, key);
+        tableStorage.AddReferalPayout(userId, rewardValue);
     }
-    function AddRewardSum(uint userId, uint8 table, uint reward, address key) override public payable
+    function AddRewardSum(uint userId, uint8 table, uint reward) override public payable Pass()
     {
-        tableStorage.AddRewardSum(userId, table, reward, key);
+        tableStorage.AddRewardSum(userId, table, reward);
     }
-    
+    function SetKey() public override payable
+    {
+        this.Set(msg.sender);
+    }
+
+
+
     /// View 
     function IsTableActive(uint userId, uint8 table) public override view returns(bool)
     {
@@ -149,25 +153,22 @@ contract TableController is ITableController
 
 
         //// ADMIN
-    function ChangeTableStorage(address newAddress, address key)public payable
+    function ChangeTableStorage(address newAddress)public payable
     {
-       require(SecretKey[key], "1");
        require(_owner == msg.sender, "only owner");
        tableStorage = ITableStorage(newAddress);
     }
-    function ChangeUserStorage(address newAddress, address key)public payable
+    function ChangeUserStorage(address newAddress)public payable
     {
-       require(SecretKey[key], "1");
        require(_owner == msg.sender, "only owner");
        userStorage = IUserStorage(newAddress);
     }
-    function AddWhite(uint userId, uint16 payouts, address key, address userAddress )public payable
+    function AddWhite(uint userId, uint16 payouts,address userAddress )public payable
     {
-        require(SecretKey[key],"1");
         require(_owner == msg.sender, "only owner");
         for (uint8 line = 1; line<=totalTables; line++)
         {
-            tableStorage.AddTable(line, payouts, userAddress , userId, key);
+            tableStorage.AddTable(line, payouts, userAddress , userId);
         }
     }
 }

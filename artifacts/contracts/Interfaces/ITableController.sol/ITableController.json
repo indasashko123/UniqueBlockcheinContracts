@@ -14,11 +14,6 @@
           "internalType": "uint256",
           "name": "rewardValue",
           "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "AddReferalPayout",
@@ -42,11 +37,6 @@
           "internalType": "uint256",
           "name": "reward",
           "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
-          "type": "address"
         }
       ],
       "name": "AddRewardSum",
@@ -64,11 +54,6 @@
         {
           "internalType": "address",
           "name": "userAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "key",
           "type": "address"
         }
       ],
@@ -349,6 +334,13 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "SetKey",
+      "outputs": [],
+      "stateMutability": "payable",
       "type": "function"
     },
     {

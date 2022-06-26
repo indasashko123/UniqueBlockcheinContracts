@@ -2,12 +2,11 @@
 pragma solidity ^0.8.0;
 
 import '../Interfaces/ITableStorage.sol';
+import '../Protect/SecretKey.sol';
 
-
-contract TableStorage is ITableStorage
+contract TableStorage is ITableStorage, SecretKey
 {
     address payable _owner;
-    mapping (address => bool) private SecretKey;
 
     struct UserTablesInfo 
     {
@@ -28,54 +27,54 @@ contract TableStorage is ITableStorage
     mapping(uint8 => uint) headIndex;                       /// TablesNumber => first table in Queue
     uint public transactions;  // Transaction Counts
      
-    constructor(address key) payable
+    constructor() 
     {       
-        SecretKey[key] = true;
         _owner = payable(msg.sender);
     }
-    function AddTable(uint8 table, uint16 payouts, address UserAddress, uint userId,address key)override public payable
+    function AddTable(uint8 table, uint16 payouts, address UserAddress, uint userId)override public payable Pass()
     {   
-        require(SecretKey[key], "1");
         transactions++;
         UserTablesById[userId].Tables[table].activationTimes++;
         UserTablesById[userId].Tables[table].payouts = payouts;
         UserTablesById[userId].Tables[table].active = true;
         TablesQueue[table].push(UserAddress);
     } 
-    function ReducePayout(address key, uint8 table, uint userId) override public payable
+    function ReducePayout( uint8 table, uint userId) override public payable Pass()
     {
-        require(SecretKey[key], "1");
         UserTablesById[userId].Tables[table].payouts = UserTablesById[userId].Tables[table].payouts-1;
     }
-    function AddRewardSum(uint rewarderUserId, uint8 table, uint reward, address key )override public payable
+    function AddRewardSum(uint rewarderUserId, uint8 table, uint reward )override public payable Pass()
     {
-        require(SecretKey[key], "1");
         UserTablesById[rewarderUserId].Tables[table].rewardSum += reward;
         UserTablesById[rewarderUserId].RewardSumForTables += reward;              
     }
-    function PushTable(address key, uint8 table, address rewardAddress)override public payable
+    function PushTable( uint8 table, address rewardAddress)override public payable Pass()
     {
-        require(SecretKey[key], "1");
+      
         TablesQueue[table].push(rewardAddress);
     }
-    function DeactiveTable(uint rewarderUserId,uint8 table, address key)override public payable
+    function DeactiveTable(uint rewarderUserId,uint8 table)override public payable Pass()
     {
-        require(SecretKey[key], "1");
         UserTablesById[rewarderUserId].Tables[table].active = false;
     }
-    function SwitchTablesQueue(uint8 table,address key)override public payable
+    function SwitchTablesQueue(uint8 table)override public payable Pass()
     {
-        require(SecretKey[key], "1");
         delete TablesQueue[table][headIndex[table]];
         headIndex[table]++;
     }
-    function AddReferalPayout(uint userId, uint rewardValue,address key)override public payable
+    function AddReferalPayout(uint userId, uint rewardValue)override public payable Pass()
     {
-        require(SecretKey[key], "1");
         UserTablesById[userId].ReferalRewards += rewardValue;
     }
-
-
+    function SetKey()public override payable
+    {
+        this.Set(msg.sender);
+    }
+    function ChangeKey(address newKey) public payable 
+    {
+        require(msg.sender == _owner, "2");
+        this.Change(newKey);
+    }
     /// VIEW
 
     //// General queue of tables per level
@@ -124,7 +123,8 @@ contract TableStorage is ITableStorage
         }
         return (active, payouts, activationTimes, rewardSum);
     }
-    function GetGlobalStatistic()override public view returns(uint) {
+    function GetGlobalStatistic()override public view returns(uint) 
+    {
         return transactions;
     }
     /// Номер в очереди, количество 
@@ -154,8 +154,4 @@ contract TableStorage is ITableStorage
     {
         return (UserTablesById[userId].RewardSumForTables, UserTablesById[userId].ReferalRewards);
     }
-
-
-
-
 }

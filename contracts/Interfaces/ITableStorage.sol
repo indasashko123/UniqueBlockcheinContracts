@@ -3,14 +3,14 @@ pragma solidity ^0.8.0;
 
 interface ITableStorage
 {
-    function AddTable(uint8 table,uint16 payouts, address userAddress, uint userId, address key)external payable;
-    function AddRewardSum(uint rewarderUserId, uint8 table, uint reward, address key )external payable;
-    function AddReferalPayout(uint userId, uint rewardValue, address key)external payable;
+    function AddTable(uint8 table,uint16 payouts, address userAddress, uint userIdy)external payable;
+    function AddRewardSum(uint rewarderUserId, uint8 table, uint reward)external payable;
+    function AddReferalPayout(uint userId, uint rewardValue)external payable;
     
-    function ReducePayout(address key, uint8 table, uint userId) external payable;
-    function PushTable(address key, uint8 table, address rewardAddress)external payable;
-    function DeactiveTable(uint rewarderUserId,uint8 table, address key)external payable;
-    function SwitchTablesQueue(uint8 table, address key)external payable;
+    function ReducePayout(uint8 table, uint userId) external payable;
+    function PushTable( uint8 table, address rewardAddress)external payable;
+    function DeactiveTable(uint rewarderUserId,uint8 table)external payable;
+    function SwitchTablesQueue(uint8 table)external payable;
     
 
     function GetFirstTableAddress(uint8 table)external view returns(address);
@@ -23,7 +23,7 @@ interface ITableStorage
     function GetUserRewards(uint userId) external view returns(uint, uint);
     function GetTablesQueue(uint8 table)external view returns(address[] memory);
     function GetHeadIndex(uint8 table)external view returns(uint);
-   
+    function SetKey() external payable;
 
 
 

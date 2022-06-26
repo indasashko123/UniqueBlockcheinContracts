@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 interface IPullController 
 {
-    function BuyTicket(address userAddress, uint ticketCost, address key) external payable;
-    function AddMemberReferalRewards(uint value, uint UserId, address key) external payable;
-    function AddMemberRewards(uint value, uint UserId, address key) external payable;
+    function BuyTicket(address userAddress, uint ticketCost) external payable;
+    function AddMemberReferalRewards(uint value, uint UserId) external payable;
+    function AddMemberRewards(uint value, uint UserId) external payable;
 
 
 
@@ -17,4 +17,5 @@ interface IPullController
     function GetTicketInfo(uint pullId, uint ticketNumber) external view returns(address,uint,uint);
     function GetCurrentPull() external view returns(uint,uint,uint,uint);
     function GetPull(uint pullId) external view returns(uint,uint,uint,uint);
+    function SetKey() external payable;
 }

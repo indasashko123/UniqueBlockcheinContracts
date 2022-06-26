@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 interface IUserController 
 {
-    function Register(address key, address userAddress, uint refId) external payable;
+    function Register(address userAddress, uint refId) external payable;
 
     function GetReferalPercent(uint line) external view returns(uint); 
     function GetReferalLines() external view returns(uint);
@@ -16,4 +16,5 @@ interface IUserController
     function GetReferrer(address userAddress) external view returns (address);
     function GetMembersCount() external view returns(uint);
     function GetReferalPercentArray() external view returns(uint[] memory);
+    function SetKey() external payable;
 }
