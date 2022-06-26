@@ -22,41 +22,92 @@ contract View
         deposite = IDepositeController(depAd);
     }
 
-
-////   ID / REFERER / REFERALS COUNT / [ Table Rewards , Referal Rewards , USerDEposite] 
+         //// USERS
+    /*
+        [
+            uint : Id,
+            Address : Referrer,
+            uint : ReferalCount,
+            [
+                uint : tableRewards,
+                uint : ReferalRewards,
+                uint : UserDeposite,
+                uint : PullReward,
+                uint : PullReferalReward
+            ]
+        ]
+    */
     function GetFullUserInfo(address userAddress) public view returns(uint, address, uint,  uint[] memory )
     {
         (uint userId, address Referer, uint referals) = user.GetUserByAddress(userAddress);
         uint userdeposite = deposite.GetUserDeposite(userId);
         (uint RewardsForTables, uint ReferalRewards) = table.GetUserRewards(userId);
-        uint[] memory userFinance = new uint[](3);
+        uint[] memory userFinance = new uint[](5);
+        (uint pullReward, uint pullRefReward, uint Dep) = pull.GetMember(userId);
         userFinance[0] = RewardsForTables;
         userFinance[1] = ReferalRewards;
         userFinance[2] = userdeposite;
+        userFinance[3] = pullReward;
+        userFinance[4] = pullRefReward;
        
         return 
         (
             userId, Referer, referals, userFinance
         );
     }
-
-    /////   Tables Active  /  Payouts   /  activation Times   /   Table rewards   
+                                          /// TABLES
+ 
+    /*
+       [
+         bool[] : ActiveTable,
+         uint[] : Payouts,
+         uint[] : ActivationTimes,
+         uint[] : TableRewards
+       ]
+    */
     function GetUserLevels(uint userId) public view returns(bool[] memory, uint16[] memory,uint16[] memory, uint[] memory)
     {
          return  table.GetUserLevels(userId);
     }
-    
-    //// Place in Queue  /  Total Queue
+
+    /*
+       [
+         uint : place,
+         uint : totalQueue
+       ]
+    */
     function GetTablePosition(uint userId, address userAddress, uint8 tableNumber) public view returns(uint, uint)
     {
         return table.GetPlaceInQueue(userId, userAddress, tableNumber);
     }
 
-    
 
+    /// PULLS
+    /*
+      [
+        uint : id,
+        uint : NeedToCollect,
+        uint : CollectedNow,
+        uint : LastToCollect
+      ]
+    */
+    function GetPullById(uint pullId) public view returns(uint,uint,uint,uint)
+    {
+        return pull.GetPull(pullId);
+    }
+    /*
+       [
+         address : userAddress,
+         uint ; Sum,
+         uint : userId
+       ]
+    */
+    function GetTicketInfo(uint pullId, uint ticketNumber) public view returns (address,uint, uint)
+    {
+        return pull.GetTicketInfo(pullId, ticketNumber);
+    }
+    function GetTicketCount(uint pullId) public view returns(uint)
+    {
+        return pull.GetTicketCountOnPull(pullId);
+    }
 }
-
-
-/*
-function GetUserLevels(uint userId) override public view returns (bool[] memory,uint16[] memory,uint16[] memory, uint[] memory) 
- */

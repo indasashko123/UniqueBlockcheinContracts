@@ -32,9 +32,9 @@ contract PullStorage  is IPullStorage, SecretKey
         uint TotalFoundSum;
         uint TotalRewards;
     }
-    mapping (uint => Member) Members;     /// UserId => Member
-    mapping (uint => Pull) Pulls;         /// PullId => Pull           
-    mapping (uint => Ticket[]) Tickets;   /// PullId => Tickets;
+    mapping (uint => Member) Members;          /// UserId => Member
+    mapping (uint => Pull) Pulls;              /// PullId => Pull           
+    mapping (uint => Ticket[]) Tickets;        /// PullId => Tickets;
     uint private newPullId = 1;
     uint private FoundingSum;
     GlobalStatistic private globalStat;
@@ -75,6 +75,20 @@ contract PullStorage  is IPullStorage, SecretKey
         Tickets[Pulls[newPullId].id].push(ticket);
         
     }
+    function AddToTicket(uint userId, uint value) override public payable Pass()
+    {
+        Ticket[] memory tickets = Tickets[newPullId];
+        for(uint tick = 0; tick<tickets.length; tick++)
+        {
+            if (tickets[tick].UserId == userId)
+            {
+                Tickets[newPullId][tick].Sum += value;
+            }
+        }
+    }
+
+
+
     function AddMemberDeposite(uint userId, uint value) override public payable Pass()
     {
         Members[userId].SumDeposite += value;
@@ -98,11 +112,11 @@ contract PullStorage  is IPullStorage, SecretKey
     } 
     function AddMemberReferalRewards(uint value, uint UserId) override public payable Pass()
     {
-        Members[UserId].RewardsFromRef = Members[UserId].RewardsFromRef + value;
+        Members[UserId].RewardsFromRef += value;
     }
     function AddMemberRewards(uint value, uint UserId) override public payable Pass()
     {
-        Members[UserId].RewardsForPulls = Members[UserId].RewardsForPulls + value;
+        Members[UserId].RewardsForPulls += value;
     }
     function SetKey() public override payable
     {
@@ -116,7 +130,18 @@ contract PullStorage  is IPullStorage, SecretKey
 
 
        ///// VIEW
-
+    function TicketExistOnPull (uint userId, uint pullId) public override view returns(bool)
+    {
+        Ticket[] memory tickets = Tickets[pullId];
+        for(uint tick = 0; tick<tickets.length; tick++)
+        {
+            if (tickets[tick].UserId == userId)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     function IsPullExist(uint id) override public view returns (bool)
     {
         return Pulls[id].id != 0;
@@ -179,6 +204,10 @@ contract PullStorage  is IPullStorage, SecretKey
         CurrentPull.CrowndFindingSum,
         CurrentPull.CollectSum,
         CurrentPull.LastFound);
+    }
+    function GetPullsCount() public override view returns (uint) 
+    {
+        return newPullId;    
     }
    function GetMember(uint id ) override public view returns(uint,uint,uint)
    {

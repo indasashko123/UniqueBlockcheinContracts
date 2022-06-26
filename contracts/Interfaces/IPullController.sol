@@ -7,10 +7,9 @@ interface IPullController
     function AddMemberReferalRewards(uint value, uint UserId) external payable;
     function AddMemberRewards(uint value, uint UserId) external payable;
 
-
-
-
+       ///// VIEW
     function GetRewardableLines() external view returns(uint[] memory);
+    function GetMember(uint userId) external view returns(uint,uint,uint);
     function IsPullExist(uint id) external view returns (bool);
     function GetTicketCountOnPull(uint pullId) external view returns(uint);
     function GetPullCollectedSum(uint pullId)  external view returns (uint);

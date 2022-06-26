@@ -40,29 +40,28 @@ contract Reinvest is ReentrancyGuard
     }
 
     
-    function RewardToPull(uint pullId) external payable 
+    function RewardToPull(uint pullId) public payable 
     {
         require(pullController.IsPullExist(pullId), "Pull not found");
         uint[] memory rewardableLines = pullController.GetRewardableLines(); 
-        uint TotalValue = msg.value/100*60;                                    //// 60% от полученной суммы
-        uint ToReinvestValue = msg.value - TotalValue;                         //// 40% на реинвест              
-        uint OnePercent =  pullController.GetPullCollectedSum(pullId)/100;     /// Доля от вложенного. 1%     
+
+        uint TotalValue = msg.value;
+        uint OnePercent =  pullController.GetPullCollectedSum(pullId)/100;     /// Цена. 1%     
         uint ticketsCount = pullController.GetTicketCountOnPull(pullId);
-        for (uint tick = 0; tick<ticketsCount; tick++)
+        for (uint tick = 1; tick<=ticketsCount; tick++)
         { 
             (address UserAddress, uint sumFromTicket, uint UserId) = pullController.GetTicketInfo(pullId, tick);
-            uint RewardPercent = sumFromTicket/OnePercent;
-            uint UserReward = TotalValue/100*RewardPercent;
-   
-            uint UserReinvestValue = ToReinvestValue/100*RewardPercent;
-            depositeController.SetReinvestCell(UserId, UserReinvestValue);
-
-            uint line = 1;
-            uint referalPayCount;
-            address ReferalAddress = userController.GetReferrer(UserAddress);
+            uint RewardPercent = sumFromTicket/OnePercent; 
+            uint UserReward = (TotalValue/100)*RewardPercent;
+            
+            /// User Reinvest Set
+            uint UserReinvestValue = (UserReward/100)*40;
+            depositeController.SetReinvestCell(UserId, UserReinvestValue);      
+            UserReward -= UserReinvestValue;
 
             /// REFERALS REWARDS
-
+            uint line = 1;
+            address ReferalAddress = userController.GetReferrer(UserAddress);
             while (line <= rewardableLines.length-1 && ReferalAddress != owner) 
             {
                 uint ReferalReward = UserReward/100*rewardableLines[line];
@@ -74,11 +73,11 @@ contract Reinvest is ReentrancyGuard
                 uint RefererId = userController.GetUserIdByAddress(ReferalAddress);
                 game.AddMemberReferalRewards(ReferalReward, RefererId);
                 ReferalAddress = userController.GetReferrer(ReferalAddress);
-                line ++;
-                referalPayCount +=  ReferalReward;
+                line++;
+                UserReward -=  ReferalReward;
             }
+
             /// USER REWARD FROM PULL
-            UserReward = UserReward - referalPayCount;
             bool sent = payable(UserAddress).send(UserReward);  
             if (!sent)
             {
@@ -87,7 +86,7 @@ contract Reinvest is ReentrancyGuard
             game.AddMemberRewards(UserReward, UserId);         
         }
     }
-    function ReinvestTable(uint8 table, address userAddress)external payable
+    function ReinvestTable(uint8 table, address userAddress)external payable nonReentrant
     { 
         require(userController.IsUserExist(userAddress),"Not found user");
         uint value = tableController.GetTablePrice(table);

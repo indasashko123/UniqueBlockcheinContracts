@@ -11,10 +11,11 @@ interface IPullStorage
     function AddMemberReferalRewards(uint value, uint UserId ) external payable;
     function AddMemberRewards(uint value, uint UserId ) external payable;
     function AddMemberDeposite(uint userId, uint value ) external payable;
-
+    function AddToTicket(uint userId, uint value) external payable ;
 
        ///// VIEW
-
+    function GetPullsCount() external view returns (uint); 
+     function TicketExistOnPull (uint userId, uint pullId) external view returns(bool);  
      function IsPullExist(uint id) external view returns (bool);
      function GetStatistic() external view returns(uint,uint,uint);
      function IsMemberExist(uint id) external view returns(bool);

@@ -33,9 +33,6 @@ contract PullController is IPullController, SecretKey
     uint public rewardableLinesCount = referralRewardPercents.length - 1;
     
 
-
-
-
     function BuyTicket(address userAddress, uint value) override public payable Pass()
     {
         uint userId = userStorage.GetUserIdByAddress(userAddress);
@@ -44,16 +41,32 @@ contract PullController is IPullController, SecretKey
             pullStorage.SetMember(userId);
         }
         uint lastValue = pullStorage.GetLastCurrentPullSum();
+        uint pullId = pullStorage.GetPullsCount();
+        bool existTicket = pullStorage.TicketExistOnPull(userId, pullId);       
         if (lastValue > value)
         {
-            pullStorage.SetTicket(userAddress, value,  userId);
+            if(existTicket)
+            {
+                pullStorage.AddToTicket(userId, value);
+            }
+            else
+            {
+                pullStorage.SetTicket(userAddress, value,  userId);
+            } 
             pullStorage.AddMemberDeposite(userId, value);
             pullStorage.SetCurrentPullValue(value);
         }
         else
         {
             uint residual = value - lastValue;
-            pullStorage.SetTicket(userAddress, lastValue,  userId);
+            if (existTicket)
+            {
+                pullStorage.AddToTicket(userId, value);
+            }
+            else
+            {
+                pullStorage.SetTicket(userAddress, lastValue,  userId);
+            }    
             pullStorage.SetCurrentPullValue(lastValue);
             pullStorage.AddNewPull();
             if (residual > 0)
@@ -109,7 +122,10 @@ contract PullController is IPullController, SecretKey
     {
         return pullStorage.GetPull(pullId);
     }
-
+    function GetMember(uint userId) public override view returns(uint,uint,uint)
+    {
+        return pullStorage.GetMember(userId);
+    }
 
         //// ADMIN
     function ChangePullStorage(address newAddress)public payable
