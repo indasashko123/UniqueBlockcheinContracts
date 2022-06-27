@@ -15,6 +15,9 @@ interface IPullController
     function GetPullCollectedSum(uint pullId)  external view returns (uint);
     function GetTicketInfo(uint pullId, uint ticketNumber) external view returns(address,uint,uint);
     function GetCurrentPull() external view returns(uint,uint,uint,uint);
+    function GetPullCount() external view returns(uint);
+    function GetStatistic() external view returns(uint,uint, uint);
+    function GetTicketsByPullId(uint pullId) external view returns(address[] memory,uint [] memory, uint[] memory);
     function GetPull(uint pullId) external view returns(uint,uint,uint,uint);
     function SetKey() external payable;
 }

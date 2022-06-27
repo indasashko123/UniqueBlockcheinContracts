@@ -159,7 +159,7 @@ describe("Reinvest Tests", function ()
 
     /// 12.78
 
-    let pull =await view.GetPullById(1);
+    let pull = await view.GetPullById(1);
     expect(pull[1]).to.eq(ethers.utils.parseEther("10"));
     expect(pull[2]).to.eq(ethers.utils.parseEther("10"));
     expect(pull[3]).to.eq(ethers.utils.parseEther("0"));
@@ -168,11 +168,10 @@ describe("Reinvest Tests", function ()
     await rewardPull.wait();
 
     let user  = await view.GetFullUserInfo(acc1.address);
-    let user2  = await view.GetFullUserInfo(acc1.address);
+    let user2  = await view.GetFullUserInfo(acc2.address);
      
     let ticket1 = await view.GetTicketInfo(1,1);
     let ticket2 = await view.GetTicketInfo(1,2);
-
     console.log(ticket1[1].toString());
     console.log(ticket2[1].toString());
 

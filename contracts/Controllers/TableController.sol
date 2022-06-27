@@ -74,7 +74,10 @@ contract TableController is ITableController, SecretKey
     {
         this.Set(msg.sender);
     }
-
+    function AddTotalValue(uint value) public override payable
+    {
+        tableStorage.AddTotalValue(value);
+    }
 
 
     /// View 
@@ -126,7 +129,7 @@ contract TableController is ITableController, SecretKey
         return tableStorage.GetUserLevels(userId, totalTables);
 
     }
-    function GetGlobalStatistic()override public view returns(uint) 
+    function GetGlobalStatistic()override public view returns(uint, uint) 
     {
         return tableStorage.GetGlobalStatistic();
     }
@@ -138,7 +141,6 @@ contract TableController is ITableController, SecretKey
     {
         return tableStorage.GetUserRewards(userId);
     }
-
     //// General queue of tables per level
     function GetTablesQueue(uint8 table)override public view returns(address[] memory)
     {

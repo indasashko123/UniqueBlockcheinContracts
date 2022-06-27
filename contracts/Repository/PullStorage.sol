@@ -12,6 +12,7 @@ contract PullStorage  is IPullStorage, SecretKey
         uint SumDeposite;
         uint RewardsForPulls;
         uint RewardsFromRef;
+        bool Active;
     }
     struct Pull
     {
@@ -60,7 +61,8 @@ contract PullStorage  is IPullStorage, SecretKey
         ({
             SumDeposite : 0,
             RewardsForPulls : 0,
-            RewardsFromRef : 0
+            RewardsFromRef : 0,
+            Active : true
         });   
     }
     function SetTicket(address userAdr, uint value, uint userId) override public payable Pass()
@@ -91,6 +93,7 @@ contract PullStorage  is IPullStorage, SecretKey
 
     function AddMemberDeposite(uint userId, uint value) override public payable Pass()
     {
+        globalStat.TotalRewards += value;
         Members[userId].SumDeposite += value;
     } 
     function SetCurrentPullValue(uint value)  override public payable Pass()
@@ -112,6 +115,7 @@ contract PullStorage  is IPullStorage, SecretKey
     } 
     function AddMemberReferalRewards(uint value, uint UserId) override public payable Pass()
     {
+        globalStat.TotalRewards += value;
         Members[UserId].RewardsFromRef += value;
     }
     function AddMemberRewards(uint value, uint UserId) override public payable Pass()
@@ -156,7 +160,7 @@ contract PullStorage  is IPullStorage, SecretKey
     }
     function IsMemberExist(uint id) override view public returns(bool)
     {
-       return Members[id].SumDeposite != 0;
+       return Members[id].Active;
     }
     function GetTicketCountOnPull(uint pullId) override public view returns(uint)
     {
@@ -207,7 +211,7 @@ contract PullStorage  is IPullStorage, SecretKey
     }
     function GetPullsCount() public override view returns (uint) 
     {
-        return newPullId;    
+        return newPullId-1;    
     }
    function GetMember(uint id ) override public view returns(uint,uint,uint)
    {

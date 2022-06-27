@@ -61,7 +61,7 @@ contract PullController is IPullController, SecretKey
             uint residual = value - lastValue;
             if (existTicket)
             {
-                pullStorage.AddToTicket(userId, value);
+                pullStorage.AddToTicket(userId, lastValue);
             }
             else
             {
@@ -113,7 +113,10 @@ contract PullController is IPullController, SecretKey
     {
         return pullStorage.GetTicketInfo(pullId, ticketNumber);
     }
-
+    function GetStatistic() public override view returns(uint,uint, uint)
+    {
+        return pullStorage.GetStatistic();
+    }
     function GetCurrentPull() override public view returns(uint,uint,uint,uint)
     {
         return pullStorage.GetCurrentPull();
@@ -126,6 +129,15 @@ contract PullController is IPullController, SecretKey
     {
         return pullStorage.GetMember(userId);
     }
+    function GetTicketsByPullId(uint pullId) public override view returns(address[] memory,uint [] memory, uint[] memory)
+    {
+        return pullStorage.GetTicketByPullId(pullId);
+    }
+    function GetPullCount()public override view returns(uint)
+    {
+        return pullStorage.GetPullsCount();
+    }
+
 
         //// ADMIN
     function ChangePullStorage(address newAddress)public payable

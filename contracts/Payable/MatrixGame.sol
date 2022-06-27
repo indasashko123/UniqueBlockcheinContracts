@@ -24,8 +24,6 @@ contract MatrixGame is ReentrancyGuard, SecretKey
     IPullController pullController;
     ITableController tableController;
     
-
-    uint public turnover;      // Total pay from Tables in Game
     uint8 constant rewardPayouts = 3;
     uint8 constant rewardPercents = 60;
     uint8 constant buyPullPercent = 20;  
@@ -56,9 +54,8 @@ contract MatrixGame is ReentrancyGuard, SecretKey
     {
         require(isContract(msg.sender),"Buy tables only DaPP");
     }
-    function registerWithReferrer(uint refId) public payable 
+    function registerWithReferrer(uint refId) public 
     {
-        require(!isContract(msg.sender), "Can not be a contract");
         if (!userController.IsUserExistById(refId))
         {
             refId = 1;
@@ -81,9 +78,8 @@ contract MatrixGame is ReentrancyGuard, SecretKey
             require(tableController.IsTableActive(senderId,level), "All previous levels must be active");
         }       
         require(!tableController.IsTableActive(senderId, table), "Level already active"); 
-
-        // Общий оборот ++
-        turnover += msg.value;                           
+        tableController.AddTotalValue(msg.value);
+                              
         uint onePercent = msg.value / 100;              
         uint rewardForTable = onePercent * rewardPercents;   
         uint spend;                                           
@@ -136,7 +132,7 @@ contract MatrixGame is ReentrancyGuard, SecretKey
     {
     require(tableController.TableNumberIsValid(table), "Invalid level");
     require(tableController.GetTablePrice(table) == value, "Invalid BNB value");
-        turnover += value;
+        tableController.AddTotalValue(value);
         uint onePercent = value / 100;
         uint spend;
         address userAddress = userController.GetUserAddressById(userId);

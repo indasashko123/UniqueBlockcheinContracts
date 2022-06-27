@@ -55,8 +55,7 @@ contract View
             userId, Referer, referals, userFinance
         );
     }
-                                          /// TABLES
- 
+                                       
     /*
        [
          bool[] : ActiveTable,
@@ -69,7 +68,13 @@ contract View
     {
          return  table.GetUserLevels(userId);
     }
-
+    function GetUserId(address userAddress) public view returns(uint)
+    {
+        return user.GetUserIdByAddress(userAddress);
+    }
+    
+                                   /// TABLES
+ 
     /*
        [
          uint : place,
@@ -81,7 +86,6 @@ contract View
         return table.GetPlaceInQueue(userId, userAddress, tableNumber);
     }
 
-
     /// PULLS
     /*
       [
@@ -91,9 +95,15 @@ contract View
         uint : LastToCollect
       ]
     */
-    function GetPullById(uint pullId) public view returns(uint,uint,uint,uint)
+    function GetPullById(uint pullId) public view returns(uint,uint, uint[] memory, uint[] memory)
     {
-        return pull.GetPull(pullId);
+        (address [] memory UserAddress, uint [] memory TicketSum, uint[] memory UserId) = pull.GetTicketsByPullId(pullId);
+        (uint pullId, uint NeedSum, uint Collect, uint Last) = pull.GetPull(pullId);
+        return (NeedSum, Collect, TicketSum, UserId);
+    }
+    function GetPullCount() public view returns(uint)
+    {
+        return pull.GetPullCount();
     }
     /*
        [
@@ -109,5 +119,16 @@ contract View
     function GetTicketCount(uint pullId) public view returns(uint)
     {
         return pull.GetTicketCountOnPull(pullId);
+    }
+
+
+    function GetGlobalInfo()public view returns(uint, uint,uint,uint,uint)
+    {
+        uint UserCount = user.GetMembersCount();
+        (uint Transactions, uint TotalValue ) = table.GetGlobalStatistic();
+        
+        (uint PullCount, uint TotalFound, uint TotalRewardsPull) = pull.GetStatistic();
+        return (UserCount, Transactions, TotalValue, PullCount,TotalRewardsPull);
+       
     }
 }

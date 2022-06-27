@@ -26,7 +26,7 @@ contract TableStorage is ITableStorage, SecretKey
     mapping(uint8 => address[]) TablesQueue;                /// TableNumber => Users address in tables 
     mapping(uint8 => uint) headIndex;                       /// TablesNumber => first table in Queue
     uint public transactions;  // Transaction Counts
-     
+    uint public TotalValue;
     constructor() 
     {       
         _owner = payable(msg.sender);
@@ -39,6 +39,10 @@ contract TableStorage is ITableStorage, SecretKey
         UserTablesById[userId].Tables[table].active = true;
         TablesQueue[table].push(UserAddress);
     } 
+    function AddTotalValue(uint value) public override payable Pass()
+    {
+        TotalValue += value;
+    }
     function ReducePayout( uint8 table, uint userId) override public payable Pass()
     {
         UserTablesById[userId].Tables[table].payouts = UserTablesById[userId].Tables[table].payouts-1;
@@ -123,9 +127,9 @@ contract TableStorage is ITableStorage, SecretKey
         }
         return (active, payouts, activationTimes, rewardSum);
     }
-    function GetGlobalStatistic()override public view returns(uint) 
+    function GetGlobalStatistic()override public view returns(uint, uint) 
     {
-        return transactions;
+        return (transactions, TotalValue);
     }
     /// Номер в очереди, количество 
     function GetPlaceInQueue(uint userId, address userAddress, uint8 table, uint totalTables) override public view returns(uint, uint)

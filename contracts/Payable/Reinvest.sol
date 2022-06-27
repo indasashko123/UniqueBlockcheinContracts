@@ -44,7 +44,6 @@ contract Reinvest is ReentrancyGuard
     {
         require(pullController.IsPullExist(pullId), "Pull not found");
         uint[] memory rewardableLines = pullController.GetRewardableLines(); 
-
         uint TotalValue = msg.value;
         uint OnePercent =  pullController.GetPullCollectedSum(pullId)/100;     /// Цена. 1%     
         uint ticketsCount = pullController.GetTicketCountOnPull(pullId);
@@ -61,6 +60,7 @@ contract Reinvest is ReentrancyGuard
 
             /// REFERALS REWARDS
             uint line = 1;
+            uint RewardToRef = 0;
             address ReferalAddress = userController.GetReferrer(UserAddress);
             while (line <= rewardableLines.length-1 && ReferalAddress != owner) 
             {
@@ -74,10 +74,11 @@ contract Reinvest is ReentrancyGuard
                 game.AddMemberReferalRewards(ReferalReward, RefererId);
                 ReferalAddress = userController.GetReferrer(ReferalAddress);
                 line++;
-                UserReward -=  ReferalReward;
+                RewardToRef +=  ReferalReward;
             }
 
             /// USER REWARD FROM PULL
+            UserReward -= RewardToRef;
             bool sent = payable(UserAddress).send(UserReward);  
             if (!sent)
             {
