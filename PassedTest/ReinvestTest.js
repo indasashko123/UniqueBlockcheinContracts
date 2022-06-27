@@ -330,4 +330,73 @@ describe("Reinvest Tests", function ()
     expect(userDep[3][2]).to.eq(ethers.utils.parseEther("30.184"));
     expect(balacnsReduced).to.eq(true);
     });
+
+
+    it("BuyTable 1 Rewards to full pull", async function()
+    {
+    let tx = await matrix.connect(acc1).BuyTable(1, 1, {value :  ethers.utils.parseEther("0.04")});
+    await tx.wait();
+    let tx1 = await matrix.connect(acc1).BuyTable(2, 1, {value :  ethers.utils.parseEther("0.07")});
+    await tx1.wait();
+    let tx2 = await matrix.connect(acc1).BuyTable(3, 1, {value :  ethers.utils.parseEther("0.12")});
+    await tx2.wait();
+    let tx3 = await matrix.connect(acc1).BuyTable(4, 1, {value :  ethers.utils.parseEther("0.2")});
+    await tx3.wait();
+    let tx4 = await matrix.connect(acc1).BuyTable(5, 1, {value :  ethers.utils.parseEther("0.35")});
+    await tx4.wait();
+    let tx5 = await matrix.connect(acc1).BuyTable(6, 1, {value :  ethers.utils.parseEther("0.6")});
+    await tx5.wait();
+    let tx6 = await matrix.connect(acc1).BuyTable(7, 1, {value :  ethers.utils.parseEther("1.3")});
+    await tx6.wait();
+    let tx7 = await matrix.connect(acc1).BuyTable(8, 1, {value :  ethers.utils.parseEther("2.1")});
+    await tx7.wait();
+    let tx8 = await matrix.connect(acc1).BuyTable(9, 1, {value :  ethers.utils.parseEther("3.3")});
+    await tx8.wait();
+    let tx9 = await matrix.connect(acc1).BuyTable(10, 1, {value :  ethers.utils.parseEther("4.7")});
+    await tx9.wait();
+    let tx10 = await matrix.connect(acc1).BuyTable(11, 1, {value :  ethers.utils.parseEther("6")});
+    await tx10.wait();
+    let tx11 = await matrix.connect(acc1).BuyTable(12, 1, {value :  ethers.utils.parseEther("8")});
+    await tx11.wait();
+    let tx12 = await matrix.connect(acc1).BuyTable(13, 1, {value :  ethers.utils.parseEther("11")});
+    await tx12.wait();
+/// 37.78 (12.22)
+
+    let tx13 = await matrix.connect(acc2).BuyTable(1, 2, {value :  ethers.utils.parseEther("0.04")});
+    await tx13.wait();
+    let tx14 = await matrix.connect(acc2).BuyTable(2, 2, {value :  ethers.utils.parseEther("0.07")});
+    await tx14.wait();
+    let tx15 = await matrix.connect(acc2).BuyTable(3, 2, {value :  ethers.utils.parseEther("0.12")});
+    await tx15.wait();
+    let tx16 = await matrix.connect(acc2).BuyTable(4, 2, {value :  ethers.utils.parseEther("0.2")});
+    await tx16.wait();
+    let tx17 = await matrix.connect(acc2).BuyTable(5, 2, {value :  ethers.utils.parseEther("0.35")});
+    await tx17.wait();
+    let tx18 = await matrix.connect(acc2).BuyTable(6, 2, {value :  ethers.utils.parseEther("0.6")});
+    await tx18.wait();
+    let tx19 = await matrix.connect(acc2).BuyTable(7, 2, {value :  ethers.utils.parseEther("1.3")});   
+    await tx19.wait();
+    let tx20 = await matrix.connect(acc2).BuyTable(8, 2, {value :  ethers.utils.parseEther("2.1")});
+    await tx20.wait();
+    let tx21 = await matrix.connect(acc2).BuyTable(9, 2, {value :  ethers.utils.parseEther("3.3")});
+    await tx21.wait();
+    let tx22 = await matrix.connect(acc2).BuyTable(10, 2, {value :  ethers.utils.parseEther("4.7")});
+    await tx22.wait();
+
+    /// 12.78
+    let rewardPull = await reinvest.RewardToPull(1, {value : ethers.utils.parseEther("1")})
+    await rewardPull.wait();
+
+    let user  = await view.GetFullUserInfo(acc1.address);
+    let user2  = await view.GetFullUserInfo(acc2.address);
+     
+    expect(user[3][3]).to.eq(ethers.utils.parseEther("0.45336"));
+    expect(user[3][4]).to.eq(ethers.utils.parseEther("0.0117312"));
+    expect(user2[3][3]).to.eq(ethers.utils.parseEther("0.1349088"));
+
+    expect(user[3][2]).to.eq(ethers.utils.parseEther("0.30224"));
+    expect(user2[3][2]).to.eq(ethers.utils.parseEther("0.09776"));
+    
+    const balance0ETH = await ethers.provider.getBalance(reinvestAddress);
+    });
 });
