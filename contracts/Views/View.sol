@@ -88,7 +88,6 @@ contract View
     /// PULLS
     /*
       [
-        uint : id,
         uint : NeedToCollect,
         uint : CollectedNow,
         uint : LastToCollect
@@ -104,9 +103,8 @@ contract View
     }
     /*
        [
-         address : userAddress,
-         uint ; Sum,
-         uint : userId
+         uint ; userId,
+         uint : sum
        ]
     */
     function GetTicketInfo(uint pullId, uint ticketNumber) public view returns (uint, uint)
@@ -132,7 +130,18 @@ contract View
     {
         return pull.GetStructure(pullId);
     }
+    
 
+    /*
+       [
+          user count,
+          transactionsCount 
+          total found on pulls
+          total value on tables
+          pull count
+          total pull rewads
+       ]
+    */
     function GetGlobalInfo()public view returns(uint,uint,uint,uint,uint, uint)
     {
         uint UserCount = user.GetMembersCount();
