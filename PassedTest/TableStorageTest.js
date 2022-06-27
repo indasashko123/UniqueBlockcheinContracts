@@ -259,7 +259,7 @@ describe("Table Storage Tests", function ()
     expect(place4[1]).to.eq(5);
 
     let stat = await tableController.GetGlobalStatistic();
-    expect(stat).to.eq(20);
+    expect(stat[0]).to.eq(20);
 
    });
 

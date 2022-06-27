@@ -47,6 +47,19 @@
     {
       "inputs": [
         {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "AddTotalValue",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint8",
           "name": "table",
           "type": "uint8"
@@ -85,6 +98,11 @@
       "inputs": [],
       "name": "GetGlobalStatistic",
       "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
         {
           "internalType": "uint256",
           "name": "",

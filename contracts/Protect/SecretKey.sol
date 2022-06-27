@@ -30,7 +30,7 @@ contract SecretKey
         AddressKey : _addressKey
       });
    }
-   function Change(address newAddress) public payable
+   function Change(address newAddress) public payable 
    {
        CurrentKey.AddressKey = newAddress;
    }

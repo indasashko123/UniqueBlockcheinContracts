@@ -76,6 +76,19 @@
       "inputs": [
         {
           "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "AddTotalValue",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
           "name": "rewarderUserId",
           "type": "uint256"
         },
@@ -113,6 +126,11 @@
       "inputs": [],
       "name": "GetGlobalStatistic",
       "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
         {
           "internalType": "uint256",
           "name": "",

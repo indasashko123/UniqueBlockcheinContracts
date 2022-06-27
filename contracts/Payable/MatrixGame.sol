@@ -119,7 +119,7 @@ contract MatrixGame is ReentrancyGuard, SecretKey
 
         /// BUY TICKET
         uint ticketCost = msg.value - spend;
-        pullController.BuyTicket(msg.sender, ticketCost);
+        pullController.BuyTicket(senderId, ticketCost);
         bool sentTicket = payable(_pullInvestAddress).send(ticketCost);           
         if (!sentTicket) 
         {
@@ -130,8 +130,8 @@ contract MatrixGame is ReentrancyGuard, SecretKey
 
     function BuyTableReInvest(uint userId, uint value, uint8 table) public payable Pass()
     {
-    require(tableController.TableNumberIsValid(table), "Invalid level");
-    require(tableController.GetTablePrice(table) == value, "Invalid BNB value");
+        require(tableController.TableNumberIsValid(table), "Invalid level");
+        require(tableController.GetTablePrice(table) == value, "Invalid BNB value");
         tableController.AddTotalValue(value);
         uint onePercent = value / 100;
         uint spend;
@@ -162,7 +162,7 @@ contract MatrixGame is ReentrancyGuard, SecretKey
             userReferrer = userController.GetReferrer(userReferrer);
         }
         uint ticketCost = value - spend;
-        pullController.BuyTicket(msg.sender, ticketCost);
+        pullController.BuyTicket(userId, ticketCost);
         bool sentTicket = payable(_pullInvestAddress).send(ticketCost);           
         if (!sentTicket) 
         {

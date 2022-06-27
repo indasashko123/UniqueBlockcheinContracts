@@ -3,116 +3,82 @@ pragma solidity ^0.8.0;
 
 import '../Interfaces/IPullStorage.sol';
 import '../Protect/SecretKey.sol';
-
+import "hardhat/console.sol";
 contract PullStorage  is IPullStorage, SecretKey
 { 
-    address payable private owner;
+     address payable private owner;
+     struct GlobalStatistic
+    {
+        uint TotalPullsClose;
+        uint TotalFoundSum;
+        uint TotalRewards;
+    }
     struct Member 
     {
-        uint SumDeposite;
         uint RewardsForPulls;
         uint RewardsFromRef;
         bool Active;
     }
     struct Pull
     {
-        uint id;
-        uint CrowndFindingSum;
-        uint CollectSum;
-        uint LastFound;
+        uint NeedToCollect;
+        uint CollectedSum;
+        uint TicketCount;
     }
-    struct Ticket
-    {
-        address userAddress;
-        uint Sum;
-        uint UserId;
-    }
-    struct GlobalStatistic
-    {
-        uint TotalPullsClose;
-        uint TotalFoundSum;
-        uint TotalRewards;
-    }
-    mapping (uint => Member) Members;          /// UserId => Member
-    mapping (uint => Pull) Pulls;              /// PullId => Pull           
-    mapping (uint => Ticket[]) Tickets;        /// PullId => Tickets;
-    uint private newPullId = 1;
+    mapping (uint => Pull ) Pulls;   /// pullId => pull
+    mapping (uint => Member) Members; /// uiserId => Member
+    mapping (uint => mapping(uint => uint)) SumByUserId;  /// PullId =>  (userId => TicketSum)
+    mapping (uint => mapping(uint => uint)) UserIdByNumber;  /// PullID =>  (TicketNumber  =>  userId)
+    uint newPullId = 1;
     uint private FoundingSum;
     GlobalStatistic private globalStat;
 
-    constructor(uint Sum)
-    {
+   constructor(uint sum)
+   {
         owner = payable(msg.sender);
-        FoundingSum = Sum;
-        Pull memory newPull = Pull
-        ({
-           id : newPullId,
-           CrowndFindingSum : FoundingSum,
-           CollectSum  : 0,
-           LastFound : FoundingSum
-        });
-        Pulls[newPull.id] = newPull;
-    }
+        FoundingSum = sum;
+        Pulls[newPullId] = Pull ({
+            NeedToCollect : sum,
+            CollectedSum : 0,
+            TicketCount : 0
+        }); 
+   }
 
-
-    function SetMember(uint UserId) override payable public Pass()
+   function SetMember(uint UserId) override payable public Pass()
     {
         Members[UserId] = Member
         ({
-            SumDeposite : 0,
             RewardsForPulls : 0,
             RewardsFromRef : 0,
             Active : true
         });   
     }
-    function SetTicket(address userAdr, uint value, uint userId) override public payable Pass()
+    function SetTicket( uint value, uint userId) override public payable Pass()
     {
         globalStat.TotalFoundSum += value;
-        Ticket memory ticket = Ticket
-        ({
-            userAddress : userAdr,
-            Sum : value,
-            UserId : userId
-        });
-        Tickets[Pulls[newPullId].id].push(ticket);
-        
+        Pulls[newPullId].TicketCount++;
+        UserIdByNumber[newPullId][Pulls[newPullId].TicketCount] = userId;
+        SumByUserId[newPullId][userId] = value;
     }
     function AddToTicket(uint userId, uint value) override public payable Pass()
     {
-        Ticket[] memory tickets = Tickets[newPullId];
-        for(uint tick = 0; tick<tickets.length; tick++)
-        {
-            if (tickets[tick].UserId == userId)
-            {
-                Tickets[newPullId][tick].Sum += value;
-            }
-        }
+        SumByUserId[newPullId][userId] += value;
     }
-
-
-
-    function AddMemberDeposite(uint userId, uint value) override public payable Pass()
-    {
-        globalStat.TotalRewards += value;
-        Members[userId].SumDeposite += value;
-    } 
     function SetCurrentPullValue(uint value)  override public payable Pass()
     {
-        Pulls[newPullId].CollectSum = Pulls[newPullId].CollectSum + value;
-        Pulls[newPullId].LastFound = Pulls[newPullId].LastFound - value;
+        Pulls[newPullId].CollectedSum += value;
     }
     function AddNewPull() override public payable Pass()
     {  
-        Pull memory newPull = Pull
-            ({
-            id: ++newPullId,
-            CrowndFindingSum : FoundingSum,
-            CollectSum : 0,
-            LastFound : FoundingSum
-            });
-        Pulls[newPull.id] = newPull;
+        newPullId++;
+        Pulls[newPullId] = Pull ({
+            NeedToCollect : FoundingSum,
+            CollectedSum : 0,
+            TicketCount : 0
+        });        
         globalStat.TotalPullsClose ++;
     } 
+
     function AddMemberReferalRewards(uint value, uint UserId) override public payable Pass()
     {
         globalStat.TotalRewards += value;
@@ -120,6 +86,7 @@ contract PullStorage  is IPullStorage, SecretKey
     }
     function AddMemberRewards(uint value, uint UserId) override public payable Pass()
     {
+        globalStat.TotalRewards += value;
         Members[UserId].RewardsForPulls += value;
     }
     function SetKey() public override payable
@@ -133,22 +100,16 @@ contract PullStorage  is IPullStorage, SecretKey
     }
 
 
-       ///// VIEW
+    
+    ///// VIEW 
     function TicketExistOnPull (uint userId, uint pullId) public override view returns(bool)
     {
-        Ticket[] memory tickets = Tickets[pullId];
-        for(uint tick = 0; tick<tickets.length; tick++)
-        {
-            if (tickets[tick].UserId == userId)
-            {
-                return true;
-            }
-        }
-        return false;
+        return SumByUserId[pullId][userId] != 0;
+        //return [pullId][userId].UserId != 0;
     }
     function IsPullExist(uint id) override public view returns (bool)
     {
-        return Pulls[id].id != 0;
+        return id <= newPullId;
     }
     function GetStatistic() override public view returns(uint,uint,uint)
     {
@@ -164,65 +125,72 @@ contract PullStorage  is IPullStorage, SecretKey
     }
     function GetTicketCountOnPull(uint pullId) override public view returns(uint)
     {
-        Ticket[] memory ticket = Tickets[pullId];
-        return ticket.length;
+        return Pulls[pullId].TicketCount;
     }
-    function GetTicketByPullId(uint pullId) override public view returns(address[] memory, uint[]memory,uint[]memory)
+    function GetTicketsByPullId(uint pullId) override public view returns( uint[]memory,uint[]memory)
     {
-        Ticket[] memory tickets = Tickets[pullId];
-        address[] memory ticketAddreses;
-        uint[] memory sum;
-        uint [] memory userId;
-        for (uint ticket; ticket<tickets.length;ticket++)
+        uint ticketsLength = Pulls[pullId].TicketCount;
+        uint[] memory sum = new uint[](ticketsLength);
+        uint [] memory userId =new uint[](ticketsLength);
+        for (uint ticket=1; ticket <= ticketsLength; ticket++)
         {
-            ticketAddreses[ticket] = tickets[ticket].userAddress;
-            sum[ticket] = tickets[ticket].Sum;
-            userId[ticket] = tickets[ticket].UserId;
+            uint currentUserId = UserIdByNumber[pullId][ticket];
+            sum[ticket-1] = SumByUserId[pullId][currentUserId];
+            userId[ticket-1] = currentUserId;
         }
-        return (ticketAddreses,sum,userId);
+        return (sum,userId);
     }
-    function GetTicketInfo(uint pullId, uint ticketNumber) override public view returns(address,uint,uint)
+    function GetTicketInfo(uint pullId, uint ticketNumber) override public view returns(uint, uint)
     {
-        Ticket[] memory tickets = Tickets[pullId];
-        Ticket memory ticket = tickets[ticketNumber-1]; 
-        return 
-        (
-           ticket.userAddress,
-           ticket.Sum,
-           ticket.UserId
-        );
+        uint userId = UserIdByNumber[pullId][ticketNumber];
+        return (userId, SumByUserId[pullId][userId]);
     }
     function GetLastCurrentPullSum() override public view returns (uint)
     {
-        return Pulls[newPullId].LastFound;
+        return Pulls[newPullId].NeedToCollect - Pulls[newPullId].CollectedSum;
     }
     function GetPullCollectedSum(uint pullId) override public view returns (uint)
     {
-        return Pulls[pullId].CrowndFindingSum;
+        return Pulls[pullId].CollectedSum;
     }
-    function GetCurrentPull() override public view returns(uint,uint,uint,uint)
+    function GetCurrentPull() override public view returns(uint,uint,uint)
     {
-        Pull memory CurrentPull = Pulls[newPullId];
      return (
-        CurrentPull.id, 
-        CurrentPull.CrowndFindingSum,
-        CurrentPull.CollectSum,
-        CurrentPull.LastFound);
+        Pulls[newPullId].NeedToCollect, 
+        Pulls[newPullId].CollectedSum,
+        Pulls[newPullId].TicketCount
+        );
     }
     function GetPullsCount() public override view returns (uint) 
     {
-        return newPullId-1;    
+        return newPullId;    
     }
-   function GetMember(uint id ) override public view returns(uint,uint,uint)
+    function GetMember(uint id ) override public view returns(uint,uint)
    {
        return (
-        Members[id].SumDeposite, 
         Members[id].RewardsForPulls, 
         Members[id].RewardsFromRef);
    }
-   function GetPull(uint pullId) override public view returns(uint,uint,uint,uint)
+   function GetPull(uint pullId) override public view returns(uint,uint,uint)
    {
-       Pull memory pull = Pulls[pullId];
-       return (pull.id, pull.CrowndFindingSum, pull.CollectSum,  pull.LastFound);
+       return
+        (
+        Pulls[pullId].NeedToCollect, 
+        Pulls[pullId].CollectedSum,
+        Pulls[pullId].TicketCount
+        );
+   }
+   function GetStructure(uint pullId) public override view returns(uint,uint,uint, uint[] memory, uint[] memory)
+   {
+        uint ticketCount = Pulls[pullId].TicketCount;
+        uint[] memory users = new uint[](ticketCount);
+        uint[] memory sum = new uint[](ticketCount);
+        for (uint tick = 1; tick <= ticketCount; tick++)
+        {
+            uint user = UserIdByNumber[pullId][tick];
+            users[tick-1] = user;
+            sum[tick-1]= SumByUserId[pullId][user];
+        }
+        return (Pulls[pullId].NeedToCollect, Pulls[pullId].CollectedSum, Pulls[pullId].TicketCount, users, sum );
    }
 }

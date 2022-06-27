@@ -42,8 +42,6 @@ contract DepositeStorage is  IDepositeStorage, SecretKey
     {
         return (TotalValueCount, TotalReinvests);
     }
-    
-
 
     function ChangeKey(address newKey) public payable 
     {

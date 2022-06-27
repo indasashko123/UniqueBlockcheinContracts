@@ -43,7 +43,7 @@ contract View
         uint userdeposite = deposite.GetUserDeposite(userId);
         (uint RewardsForTables, uint ReferalRewards) = table.GetUserRewards(userId);
         uint[] memory userFinance = new uint[](5);
-        (uint pullReward, uint pullRefReward, uint Dep) = pull.GetMember(userId);
+        (uint pullReward, uint pullRefReward) = pull.GetMember(userId);
         userFinance[0] = RewardsForTables;
         userFinance[1] = ReferalRewards;
         userFinance[2] = userdeposite;
@@ -54,8 +54,7 @@ contract View
         (
             userId, Referer, referals, userFinance
         );
-    }
-                                       
+    }                                      
     /*
        [
          bool[] : ActiveTable,
@@ -95,11 +94,9 @@ contract View
         uint : LastToCollect
       ]
     */
-    function GetPullById(uint pullId) public view returns(uint,uint, uint[] memory, uint[] memory)
+    function GetPullById(uint pullId) public view returns(uint,uint, uint)
     {
-        (address [] memory UserAddress, uint [] memory TicketSum, uint[] memory UserId) = pull.GetTicketsByPullId(pullId);
-        (uint pullId, uint NeedSum, uint Collect, uint Last) = pull.GetPull(pullId);
-        return (NeedSum, Collect, TicketSum, UserId);
+        return  pull.GetPull(pullId);
     }
     function GetPullCount() public view returns(uint)
     {
@@ -112,7 +109,7 @@ contract View
          uint : userId
        ]
     */
-    function GetTicketInfo(uint pullId, uint ticketNumber) public view returns (address,uint, uint)
+    function GetTicketInfo(uint pullId, uint ticketNumber) public view returns (uint, uint)
     {
         return pull.GetTicketInfo(pullId, ticketNumber);
     }
@@ -122,13 +119,26 @@ contract View
     }
 
 
-    function GetGlobalInfo()public view returns(uint, uint,uint,uint,uint)
+    /*
+         [
+            uint : NeedToCollect,
+            uint : CollectedSum,
+            uint : TicketCount,
+            uint[] : usersId,
+            uint[] : ticketsSum
+         ]
+     */
+    function GetStructure(uint pullId) public view returns(uint,uint,uint, uint[] memory, uint[] memory)
+    {
+        return pull.GetStructure(pullId);
+    }
+
+    function GetGlobalInfo()public view returns(uint,uint,uint,uint,uint, uint)
     {
         uint UserCount = user.GetMembersCount();
         (uint Transactions, uint TotalValue ) = table.GetGlobalStatistic();
-        
         (uint PullCount, uint TotalFound, uint TotalRewardsPull) = pull.GetStatistic();
-        return (UserCount, Transactions, TotalValue, PullCount,TotalRewardsPull);
+        return (UserCount, Transactions, TotalFound, TotalValue, PullCount,TotalRewardsPull);
        
     }
 }

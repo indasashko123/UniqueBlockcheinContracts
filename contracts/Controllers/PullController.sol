@@ -33,16 +33,15 @@ contract PullController is IPullController, SecretKey
     uint public rewardableLinesCount = referralRewardPercents.length - 1;
     
 
-    function BuyTicket(address userAddress, uint value) override public payable Pass()
+    function BuyTicket(uint userId, uint value) override public payable Pass()
     {
-        uint userId = userStorage.GetUserIdByAddress(userAddress);
         if (!pullStorage.IsMemberExist(userId))
         {
             pullStorage.SetMember(userId);
         }
         uint lastValue = pullStorage.GetLastCurrentPullSum();
         uint pullId = pullStorage.GetPullsCount();
-        bool existTicket = pullStorage.TicketExistOnPull(userId, pullId);       
+        bool existTicket = pullStorage.TicketExistOnPull(userId, pullId);  
         if (lastValue > value)
         {
             if(existTicket)
@@ -51,9 +50,8 @@ contract PullController is IPullController, SecretKey
             }
             else
             {
-                pullStorage.SetTicket(userAddress, value,  userId);
+                pullStorage.SetTicket(value,  userId);
             } 
-            pullStorage.AddMemberDeposite(userId, value);
             pullStorage.SetCurrentPullValue(value);
         }
         else
@@ -65,17 +63,15 @@ contract PullController is IPullController, SecretKey
             }
             else
             {
-                pullStorage.SetTicket(userAddress, lastValue,  userId);
+                pullStorage.SetTicket( lastValue,  userId);
             }    
             pullStorage.SetCurrentPullValue(lastValue);
             pullStorage.AddNewPull();
             if (residual > 0)
             {
-                pullStorage.SetTicket(userAddress, residual,  userId);
+                pullStorage.SetTicket( residual,  userId);
                 pullStorage.SetCurrentPullValue(residual);
-                pullStorage.AddMemberDeposite(userId, value);
             }
-
         }
     }
     function AddMemberReferalRewards(uint value, uint UserId ) override public payable Pass()
@@ -97,6 +93,14 @@ contract PullController is IPullController, SecretKey
     {
         return referralRewardPercents;
     }
+    function GetRewardableLinesCount() override public view returns(uint)
+    {
+        return rewardableLinesCount;
+    }
+    function GetStructure(uint pullId) override public view returns(uint,uint,uint, uint[] memory, uint[] memory)
+    {
+        return pullStorage.GetStructure(pullId);
+    }
     function IsPullExist(uint id) override public view returns (bool)
     {
         return pullStorage.IsPullExist(id);
@@ -109,7 +113,7 @@ contract PullController is IPullController, SecretKey
     {
         return pullStorage.GetPullCollectedSum(pullId);
     }
-    function GetTicketInfo(uint pullId, uint ticketNumber) override public view returns(address,uint,uint)
+    function GetTicketInfo(uint pullId, uint ticketNumber) override public view returns(uint, uint)
     {
         return pullStorage.GetTicketInfo(pullId, ticketNumber);
     }
@@ -117,21 +121,21 @@ contract PullController is IPullController, SecretKey
     {
         return pullStorage.GetStatistic();
     }
-    function GetCurrentPull() override public view returns(uint,uint,uint,uint)
+    function GetCurrentPull() override public view returns(uint,uint,uint)
     {
         return pullStorage.GetCurrentPull();
     }
-    function GetPull(uint pullId) override public view returns(uint,uint,uint,uint)
+    function GetPull(uint pullId) override public view returns(uint,uint,uint)
     {
         return pullStorage.GetPull(pullId);
     }
-    function GetMember(uint userId) public override view returns(uint,uint,uint)
+    function GetMember(uint userId) public override view returns(uint,uint)
     {
         return pullStorage.GetMember(userId);
     }
-    function GetTicketsByPullId(uint pullId) public override view returns(address[] memory,uint [] memory, uint[] memory)
+    function GetTicketsByPullId(uint pullId) public override view returns(uint [] memory, uint[] memory)
     {
-        return pullStorage.GetTicketByPullId(pullId);
+        return pullStorage.GetTicketsByPullId(pullId);
     }
     function GetPullCount()public override view returns(uint)
     {
