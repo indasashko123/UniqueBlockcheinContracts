@@ -8,7 +8,6 @@ describe("Reinvest Tests", function ()
     let acc1;let acc2;let acc3;let acc4;let acc5;let acc6;let acc7; let acc8;let acc9;
     let acc10;let acc11;let acc12;let acc13;let acc14;let acc15;let acc16;
     let owner;
-    let key;
 
     beforeEach(async function()
     {

@@ -799,11 +799,7 @@ async function Reinvest(table)
     }
 }
 
-
-
-
-
-//// VIEW
+          //// VIEW
 
                //// Important  
 
@@ -964,9 +960,3 @@ async function GetIdByAddress(address)
         }
         return pullInfo;
     }
-
-
-
-
-
-

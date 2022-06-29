@@ -293,8 +293,8 @@
       ]
     },
     "C:\\Users\\123\\Documents\\GitHub\\UniqueBlockcheinContracts\\contracts\\Views\\View.sol": {
-      "lastModificationDate": 1656325547075,
-      "contentHash": "04b3a8da85cd1fcd6a478f9fab4fe35e",
+      "lastModificationDate": 1656340443686,
+      "contentHash": "ebf359302677e2560d53c7f1638e65ef",
       "sourceName": "contracts/Views/View.sol",
       "solcConfig": {
         "version": "0.8.4",
