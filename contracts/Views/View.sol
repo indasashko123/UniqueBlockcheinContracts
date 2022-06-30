@@ -115,8 +115,6 @@ contract View
     {
         return pull.GetTicketCountOnPull(pullId);
     }
-
-
     /*
          [
             uint : NeedToCollect,

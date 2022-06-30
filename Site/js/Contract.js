@@ -847,7 +847,7 @@ async function GetUserTableProgress()
     let places = [];
     for (let table = 1; table<=16; table++)
     {
-        let position = await ViewContract.methods.GetTablePosition(userId).call({
+        let position = await ViewContract.methods.GetTablePosition(userId, metaAdress, table).call({
             from: metaAdress
         });
         if (position[0] === 0)

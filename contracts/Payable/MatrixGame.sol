@@ -126,7 +126,7 @@ contract MatrixGame is ReentrancyGuard, SecretKey
             payable(_pullInvestAddress).transfer(ticketCost);
         }  
     }
-
+ 
 
     function BuyTableReInvest(uint userId, uint value, uint8 table) public payable Pass()
     {
@@ -182,7 +182,10 @@ contract MatrixGame is ReentrancyGuard, SecretKey
    {
         pullController.AddMemberRewards(UserReward, UserId);
    }    
-
+   function LootBox() external payable nonReentrant
+   {
+        
+   }
 
 
 

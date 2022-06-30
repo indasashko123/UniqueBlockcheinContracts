@@ -32,6 +32,7 @@ contract SecretKey
    }
    function Change(address newAddress) public payable 
    {
+       require(_keyOwner == msg.sender);
        CurrentKey.AddressKey = newAddress;
    }
 
