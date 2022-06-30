@@ -144,6 +144,28 @@ describe("Game Tests", function ()
     let contballance = await matrix.getContractBalance();
    });
 
+   it("Add White List", async function()
+   {
+       let ownerId = await view.GetUserId(owner.address);
+       expect(ownerId).to.eq(1);
+
+       let regtx = await userController.Register(acc1.address, 1);
+       await regtx.wait();
+
+       let whiteId = await view.GetUserId(acc1.address);
+       let queue = await tableController.GetTablesQueue(2);
+       expect(whiteId).to.eq(2);
+       expect(queue.length).to.eq(1);
+
+
+       let tx = await tableController.AddWhite(whiteId,3,acc1.address);
+       await tx.wait();
+       
+       let queueNew = await tableController.GetTablesQueue(2);
+       expect(queueNew.length).to.eq(2);
+       expect(queueNew[0]).to.eq(owner.address);
+       expect(queueNew[1]).to.eq(acc1.address);
+   });
  
 });
 ///  ID / REFERER / REFERALS COUNT / [ Table Rewards , Referal Rewards , USerDEposite] 
