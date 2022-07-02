@@ -80,8 +80,6 @@ describe("Game Tests", function ()
     });
 
 
-
-
    it("BuyTable", async function()
    {
     
@@ -166,9 +164,132 @@ describe("Game Tests", function ()
        expect(queueNew[0]).to.eq(owner.address);
        expect(queueNew[1]).to.eq(acc1.address);
    });
+
+   it("View Tables", async function()
+   {
+       let ownerId = await view.GetUserId(owner.address);
+       expect(ownerId).to.eq(1);
+       let tx = await matrix.connect(acc1).BuyTable(1, 1, {value :  ethers.utils.parseEther("0.04")});
+       await tx.wait();
+       let tx2 = await matrix.connect(acc2).BuyTable(1, 1, {value : ethers.utils.parseEther("0.04")});
+       await tx2.wait();
+       let tx3 = await matrix.connect(acc3).BuyTable(1, 1, {value :  ethers.utils.parseEther("0.04")});
+       await tx3.wait();
+       let tx4 = await matrix.connect(acc4).BuyTable(1, 1, {value : ethers.utils.parseEther("0.04")});
+       await tx4.wait();
+       let tx5 = await matrix.connect(acc5).BuyTable(1, 1, {value :  ethers.utils.parseEther("0.04")});
+       await tx5.wait();
+       let tx6 = await matrix.connect(acc6).BuyTable(1, 1, {value : ethers.utils.parseEther("0.04")});
+       await tx6.wait();
+
+       let tx7 = await matrix.connect(acc7).BuyTable(1, 1, {value :  ethers.utils.parseEther("0.04")});
+       await tx7.wait();
+       let tx8 = await matrix.connect(acc8).BuyTable(1, 1, {value : ethers.utils.parseEther("0.04")});
+       await tx8.wait();
+       let tx9 = await matrix.connect(acc9).BuyTable(1, 1, {value :  ethers.utils.parseEther("0.04")});
+       await tx9.wait();
+       let tx10 = await matrix.connect(acc10).BuyTable(1, 1, {value : ethers.utils.parseEther("0.04")});
+       await tx10.wait();
+       let tx11 = await matrix.connect(acc11).BuyTable(1, 1, {value :  ethers.utils.parseEther("0.04")});
+       await tx11.wait();
+       let tx12 = await matrix.connect(acc12).BuyTable(1, 1, {value : ethers.utils.parseEther("0.04")});
+       await tx12.wait();
+
+       let tx13 = await matrix.connect(acc13).BuyTable(1, 1, {value :  ethers.utils.parseEther("0.04")});
+       await tx13.wait();
+       let tx14 = await matrix.connect(acc14).BuyTable(1, 1, {value : ethers.utils.parseEther("0.04")});
+       await tx14.wait();
+       let tx15 = await matrix.connect(acc15).BuyTable(1, 1, {value :  ethers.utils.parseEther("0.04")});
+       await tx15.wait();
+       let tx16 = await matrix.connect(acc16).BuyTable(1, 1, {value : ethers.utils.parseEther("0.04")});
+       await tx16.wait();
+
+        
+
+   
+       let u1 = await view.GetUserLevels(2);
+       let u2 = await view.GetUserLevels(3);
+       let u3 = await view.GetUserLevels(4);
+       let u4 = await view.GetUserLevels(5);
+       let u5 = await view.GetUserLevels(6);
+       let u6 = await view.GetUserLevels(7);
+       let u7 = await view.GetUserLevels(8);
+       let u8 = await view.GetUserLevels(9);
+       let u9 = await view.GetUserLevels(10);
+       let u10 = await view.GetUserLevels(11);
+       let u11 = await view.GetUserLevels(12);
+       let u12 = await view.GetUserLevels(13);
+       let u13 = await view.GetUserLevels(14);
+       let u14 = await view.GetUserLevels(15);
+       let u15 = await view.GetUserLevels(16);
+       let u16 = await view.GetUserLevels(17);
  
+       
+       let uC1 = await tableController.GetUserLevels(2);
+       let uC2 = await tableController.GetUserLevels(3);
+       let uC3 = await tableController.GetUserLevels(4);
+       let uC4 = await tableController.GetUserLevels(5);
+       let uC5 = await tableController.GetUserLevels(6);
+       let uC6 = await tableController.GetUserLevels(7);
+       let uC7 = await tableController.GetUserLevels(8);
+       let uC8 = await tableController.GetUserLevels(9);
+       let uC9 = await tableController.GetUserLevels(10);
+       let uC10 = await tableController.GetUserLevels(11);
+       let uC11 = await tableController.GetUserLevels(12);
+       let uC12 = await tableController.GetUserLevels(13);
+       let uC13 = await tableController.GetUserLevels(14);
+       let uC14 = await tableController.GetUserLevels(15);
+       let uC15 = await tableController.GetUserLevels(16);
+       let uC16 = await tableController.GetUserLevels(17);
+
+  
+       expect(u1[1][1]).to.eq(uC1[1][1]);
+       expect(u2[1][1]).to.eq(uC2[1][1]);
+       expect(u3[1][1]).to.eq(uC3[1][1]);
+       expect(u4[1][1]).to.eq(uC4[1][1]);
+       expect(u5[1][1]).to.eq(uC5[1][1]);
+       expect(u6[1][1]).to.eq(uC6[1][1]);
+
+
+
+
+       
+       console.log(u1[1][1] + " - "+ uC1[1][1]);
+       console.log(u2[1][1] + " - "+ uC2[1][1]);
+       console.log(u3[1][1] + " - "+ uC3[1][1]);
+       console.log(u4[1][1] + " - "+ uC4[1][1]);
+       console.log(u5[1][1] + " - "+ uC5[1][1]);
+       console.log(u6[1][1] + " - "+ uC6[1][1]);
+       console.log(u7[1][1] + " - "+ uC7[1][1]);
+       console.log(u8[1][1] + " - "+ uC8[1][1]);
+       console.log(u9[1][1] + " - "+ uC9[1][1]);
+       console.log(u10[1][1] + " - "+ uC10[1][1]);
+       console.log(u11[1][1] + " - "+ uC11[1][1]);
+       console.log(u12[1][1] + " - "+ uC12[1][1]);
+       console.log(u13[1][1] + " - "+ uC13[1][1]);
+       console.log(u14[1][1] + " - "+ uC14[1][1]);
+       console.log(u15[1][1] + " - "+ uC15[1][1]);
+       console.log(u16[1][1] + " - "+ uC16[1][1]);
+
+
+     /*  
+       console.log(uC1[1][1]);
+       console.log(uC2[1][1]);
+       console.log(uC3[1][1]);
+       console.log(uC4[1][1]);
+       console.log(uC5[1][1]);
+       console.log(uC6[1][1]);
+   */
+      // expect(u1[1][1]).to.eq(2);
+
+   });
+
+
+
+
+
+
 });
-///  ID / REFERER / REFERALS COUNT / [ Table Rewards , Referal Rewards , USerDEposite] 
-///  Tables Active  /  Payouts   /  activation Times   /   Table rewards   
+
 
 

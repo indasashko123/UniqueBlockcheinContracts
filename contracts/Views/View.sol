@@ -65,7 +65,7 @@ contract View
     */
     function GetUserLevels(uint userId) public view returns(bool[] memory, uint16[] memory,uint16[] memory, uint[] memory)
     {
-         return  table.GetUserLevels(userId);
+        return table.GetUserLevels(userId);
     }
     function GetUserId(address userAddress) public view returns(uint)
     {
