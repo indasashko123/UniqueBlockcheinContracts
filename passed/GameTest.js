@@ -253,7 +253,7 @@ describe("Game Tests", function ()
 
 
 
-       
+
        console.log(u1[1][1] + " - "+ uC1[1][1]);
        console.log(u2[1][1] + " - "+ uC2[1][1]);
        console.log(u3[1][1] + " - "+ uC3[1][1]);
@@ -270,17 +270,6 @@ describe("Game Tests", function ()
        console.log(u14[1][1] + " - "+ uC14[1][1]);
        console.log(u15[1][1] + " - "+ uC15[1][1]);
        console.log(u16[1][1] + " - "+ uC16[1][1]);
-
-
-     /*  
-       console.log(uC1[1][1]);
-       console.log(uC2[1][1]);
-       console.log(uC3[1][1]);
-       console.log(uC4[1][1]);
-       console.log(uC5[1][1]);
-       console.log(uC6[1][1]);
-   */
-      // expect(u1[1][1]).to.eq(2);
 
    });
 
