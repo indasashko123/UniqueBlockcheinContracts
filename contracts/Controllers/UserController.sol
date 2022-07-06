@@ -30,7 +30,7 @@ contract UserController is IUserController, SecretKey
        userStorage.SetKey();
     }  
 
-    function Register(address userAddress, uint refId) public override payable Pass()
+    function Register(address userAddress, uint refId) public override payable
     {  
         if (!IsUserExistById(refId))
         {

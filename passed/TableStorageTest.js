@@ -263,6 +263,51 @@ describe("Table Storage Tests", function ()
 
    });
 
+   it("Get place", async function()
+   {
+    let reg1 = await userController.Register( acc1.address, 1);
+    await reg1.wait();
+    let tx1 = await tableController.BuyTable(1,  acc1.address );
+    await tx1.wait();
+
+    let place1 = await tableController.GetPlaceInQueue(2, acc1.address, 1);
+    expect(place1[0]).to.eq(1);
+    expect(place1[1]).to.eq(2);
+
+    
+    let reg2 = await userController.Register( acc2.address, 1);
+    await reg2.wait();
+    let tx2 = await tableController.BuyTable(1,  acc2.address );
+    await tx2.wait();
+
+    let place2 = await tableController.GetPlaceInQueue(2, acc1.address, 1);
+    expect(place2[0]).to.eq(3);
+    expect(place2[1]).to.eq(3);
+
+    let reg3 = await userController.Register( acc3.address, 1);
+    await reg3.wait();
+    let tx3 = await tableController.BuyTable(1,  acc3.address );
+    await tx3.wait();
+
+    let place3 = await tableController.GetPlaceInQueue(2, acc1.address, 1);
+    expect(place3[0]).to.eq(2);
+    expect(place3[1]).to.eq(4);
+
+    let reg4 = await userController.Register( acc4.address, 1);
+    await reg4.wait();
+    let tx4 = await tableController.BuyTable(1,  acc4.address);
+    await tx4.wait();
+
+    let place4 = await tableController.GetPlaceInQueue(2, acc1.address, 1);
+    expect(place4[0]).to.eq(1);
+    expect(place4[1]).to.eq(5);
+
+    let stat = await tableController.GetGlobalStatistic();
+    expect(stat[0]).to.eq(20);
+
+   });
+
+
 
 });
 

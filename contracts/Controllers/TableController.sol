@@ -159,12 +159,15 @@ contract TableController is ITableController, SecretKey
     {
        require(_owner == msg.sender, "only owner");
        tableStorage = ITableStorage(newAddress);
+       tableStorage.SetKey();
     }
+
     function ChangeUserStorage(address newAddress)public payable
     {
        require(_owner == msg.sender, "only owner");
        userStorage = IUserStorage(newAddress);
     }
+    
     function AddWhite(uint userId, uint16 payouts,address userAddress )public payable
     {
         require(_owner == msg.sender, "only owner");

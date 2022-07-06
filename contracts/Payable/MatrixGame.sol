@@ -62,7 +62,7 @@ contract MatrixGame is ReentrancyGuard, SecretKey
         }
         userController.Register(msg.sender, refId);
     }
-    
+
     function BuyTable(uint8 table, uint refId) public payable nonReentrant 
     {
         require(!isContract(msg.sender), "Can not be a contract");
@@ -126,7 +126,7 @@ contract MatrixGame is ReentrancyGuard, SecretKey
             payable(_pullInvestAddress).transfer(ticketCost);
         }  
     }
-
+ 
 
     function BuyTableReInvest(uint userId, uint value, uint8 table) public payable Pass()
     {
