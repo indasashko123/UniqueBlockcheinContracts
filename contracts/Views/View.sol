@@ -72,8 +72,7 @@ contract View
         return user.GetUserIdByAddress(userAddress);
     }
     
-                                   /// TABLES
- 
+                                   /// TABLE    
     /*
        [
          uint : place,
@@ -115,7 +114,22 @@ contract View
     {
         return pull.GetTicketCountOnPull(pullId);
     }
-
+    function GetData(address userAddress) public view returns (uint,uint)
+    {
+        uint userId = user.GetUserIdByAddress(userAddress);
+        (bool[] memory actives, uint16[] memory payouts, uint16[] memory activationTimes, uint[] memory rewards) = table.GetUserLevels(userId);
+        uint activation = 0;
+        for (uint level = 1; level < activationTimes.length; level++ )
+        {
+            if (activationTimes[level] == 0)
+            {
+                break;
+            }
+            activation += activationTimes[level];
+        } 
+        (uint id, address ref, uint referals) = user.GetUserById(userId);
+        return (referals, activation);
+    }
 
     /*
          [
