@@ -4,13 +4,13 @@ pragma solidity ^0.8.0;
 interface IPullStorage
 {
     /////   PAYABLE
-    function SetMember(uint UserId ) external payable ;
-    function SetTicket(uint value, uint userId ) external payable;
-    function SetCurrentPullValue(uint value )  external payable ;
-    function AddNewPull( ) external payable ;
-    function AddMemberReferalRewards(uint value, uint UserId ) external payable;
-    function AddMemberRewards(uint value, uint UserId ) external payable;
-    function AddToTicket(uint userId, uint value) external payable ;
+    function SetMember(uint UserId ) external;
+    function SetTicket(uint value, uint userId ) external;
+    function SetCurrentPullValue(uint value )  external;
+    function AddNewPull( ) external;
+    function AddMemberReferalRewards(uint value, uint UserId ) external;
+    function AddMemberRewards(uint value, uint UserId ) external;
+    function AddToTicket(uint userId, uint value) external;
    
       ///// VIEW
      function GetPullsCount() external view returns (uint); 
@@ -27,5 +27,4 @@ interface IPullStorage
      function GetLastCurrentPullSum() external view returns (uint);
      function GetPull(uint pullId) external view returns(uint,uint,uint);
      function GetStructure(uint pullId) external view returns(uint,uint,uint, uint[] memory, uint[] memory);
-     function SetKey() external payable;
 }

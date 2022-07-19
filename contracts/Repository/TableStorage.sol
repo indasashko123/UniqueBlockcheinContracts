@@ -2,9 +2,8 @@
 pragma solidity ^0.8.0;
 
 import '../Interfaces/ITableStorage.sol';
-import '../Protect/SecretKey.sol';
 
-contract TableStorage is ITableStorage, SecretKey
+contract TableStorage is ITableStorage
 {
     address payable _owner;
 
@@ -31,7 +30,7 @@ contract TableStorage is ITableStorage, SecretKey
     {       
         _owner = payable(msg.sender);
     }
-    function AddTable(uint8 table, uint16 payouts, address UserAddress, uint userId)override public payable Pass()
+    function AddTable(uint8 table, uint16 payouts, address UserAddress, uint userId)override public 
     {   
         transactions++;
         UserTablesById[userId].Tables[table].activationTimes++;
@@ -39,46 +38,38 @@ contract TableStorage is ITableStorage, SecretKey
         UserTablesById[userId].Tables[table].active = true;
         TablesQueue[table].push(UserAddress);
     } 
-    function AddTotalValue(uint value) public override payable Pass()
+    function AddTotalValue(uint value) public override 
     {
         TotalValue += value;
     }
-    function ReducePayout( uint8 table, uint userId) override public payable Pass()
+    function ReducePayout( uint8 table, uint userId) override public
     {
         UserTablesById[userId].Tables[table].payouts = UserTablesById[userId].Tables[table].payouts-1;
     }
-    function AddRewardSum(uint rewarderUserId, uint8 table, uint reward )override public payable Pass()
+    function AddRewardSum(uint rewarderUserId, uint8 table, uint reward )override public
     {
         UserTablesById[rewarderUserId].Tables[table].rewardSum += reward;
         UserTablesById[rewarderUserId].RewardSumForTables += reward;              
     }
-    function PushTable( uint8 table, address rewardAddress)override public payable Pass()
+    function PushTable( uint8 table, address rewardAddress)override public 
     {
       
         TablesQueue[table].push(rewardAddress);
     }
-    function DeactiveTable(uint rewarderUserId,uint8 table)override public payable Pass()
+    function DeactiveTable(uint rewarderUserId,uint8 table)override public
     {
         UserTablesById[rewarderUserId].Tables[table].active = false;
     }
-    function SwitchTablesQueue(uint8 table)override public payable Pass()
+    function SwitchTablesQueue(uint8 table)override public
     {
         delete TablesQueue[table][headIndex[table]];
         headIndex[table]++;
     }
-    function AddReferalPayout(uint userId, uint rewardValue)override public payable Pass()
+    function AddReferalPayout(uint userId, uint rewardValue)override public 
     {
         UserTablesById[userId].ReferalRewards += rewardValue;
     }
-    function SetKey()public override payable
-    {
-        this.Set(msg.sender);
-    }
-    function ChangeKey(address newKey) public payable 
-    {
-        require(msg.sender == _owner, "2");
-        this.Change(newKey);
-    }
+
     /// VIEW
 
     //// General queue of tables per level

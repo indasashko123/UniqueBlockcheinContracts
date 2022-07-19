@@ -1,25 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import '../Interfaces/IUserController.sol';
-import '../Interfaces/ITableController.sol';
-import '../Interfaces/IPullController.sol';
-import '../Interfaces/IDepositeController.sol';
+import '../Interfaces/IUserStorage.sol';
+import '../Interfaces/ITableStorage.sol';
+import '../Interfaces/IPullStorage.sol';
+import '../Interfaces/IDepositeStorage.sol';
 
 contract View
 {
-    IDepositeController deposite;
-    IUserController user;
-    ITableController table;
-    IPullController pull;
+    IDepositeStorage deposite;
+    IUserStorage user;
+    ITableStorage table;
+    IPullStorage pull;
 
 
     constructor(address userAd, address tableAd, address pullAd, address depAd)
     {
-        user = IUserController(userAd);
-        table = ITableController(tableAd);
-        pull = IPullController(pullAd);
-        deposite = IDepositeController(depAd);
+        user = IUserStorage(userAd);
+        table = ITableStorage(tableAd);
+        pull = IPullStorage(pullAd);
+        deposite = IDepositeStorage(depAd);
     }
 
          //// USERS
@@ -65,7 +65,7 @@ contract View
     */
     function GetUserLevels(uint userId) public view returns(bool[] memory, uint16[] memory,uint16[] memory, uint[] memory)
     {
-        return table.GetUserLevels(userId);
+        return table.GetUserLevels(userId, 16);
     }
     function GetUserId(address userAddress) public view returns(uint)
     {
@@ -81,7 +81,7 @@ contract View
     */
     function GetTablePosition(uint userId, address userAddress, uint8 tableNumber) public view returns(uint, uint)
     {
-        return table.GetPlaceInQueue(userId, userAddress, tableNumber);
+        return table.GetPlaceInQueue(userId, userAddress, tableNumber, 16);
     }
 
     /// PULLS
@@ -98,7 +98,7 @@ contract View
     }
     function GetPullCount() public view returns(uint)
     {
-        return pull.GetPullCount();
+        return pull.GetPullsCount();
     }
     /*
        [
@@ -117,7 +117,7 @@ contract View
     function GetData(address userAddress) public view returns (uint,uint)
     {
         uint userId = user.GetUserIdByAddress(userAddress);
-        (bool[] memory actives, uint16[] memory payouts, uint16[] memory activationTimes, uint[] memory rewards) = table.GetUserLevels(userId);
+        (bool[] memory actives, uint16[] memory payouts, uint16[] memory activationTimes, uint[] memory rewards) = table.GetUserLevels(userId, 16);
         uint activation = 0;
         for (uint level = 1; level < activationTimes.length; level++ )
         {

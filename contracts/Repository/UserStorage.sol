@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 import '../Interfaces/IUserStorage.sol';
-import "../Protect/SecretKey.sol";
-contract UserStorage is IUserStorage, SecretKey
+
+contract UserStorage is IUserStorage
 {
     
    address payable _owner;
@@ -35,7 +35,7 @@ contract UserStorage is IUserStorage, SecretKey
     }  
 
                                     /// Payable
-   function AddUser(address userAddress, address ref) override public payable Pass()
+   function AddUser(address userAddress, address ref) override public
    {
        if (!IsUserExist(userAddress))
        {
@@ -53,23 +53,13 @@ contract UserStorage is IUserStorage, SecretKey
             userById[newUser.id] = newUser;
             userAddressById[newUser.id] = userAddress;
        }
-      
    }
-   function AddReferal(address userAddress) override public payable Pass()
+   function AddReferal(address userAddress) override public 
    {  
        uint userId = userByAddres[userAddress].id;
        userByAddres[userAddress].referrals++;
        userById[userId].referrals++;
    }
-   function SetKey() override public payable
-   {
-    this.Set(msg.sender);
-   }
-   function ChangeKey(address newKey) public payable 
-    {
-        require(msg.sender == _owner, "2");
-        this.Change(newKey);
-    }
 
 
                                         /// VIEW
@@ -117,8 +107,5 @@ contract UserStorage is IUserStorage, SecretKey
    {
        return userAddressById[userId];
    }
-
-
-
 
 }

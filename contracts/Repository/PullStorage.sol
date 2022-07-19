@@ -2,9 +2,8 @@
 pragma solidity ^0.8.0;
 
 import '../Interfaces/IPullStorage.sol';
-import '../Protect/SecretKey.sol';
-import "hardhat/console.sol";
-contract PullStorage  is IPullStorage, SecretKey
+
+contract PullStorage  is IPullStorage
 { 
      address payable private owner;
      struct GlobalStatistic
@@ -44,7 +43,7 @@ contract PullStorage  is IPullStorage, SecretKey
         }); 
    }
 
-   function SetMember(uint UserId) override payable public Pass()
+   function SetMember(uint UserId) override public 
     {
         Members[UserId] = Member
         ({
@@ -53,22 +52,22 @@ contract PullStorage  is IPullStorage, SecretKey
             Active : true
         });   
     }
-    function SetTicket( uint value, uint userId) override public payable Pass()
+    function SetTicket( uint value, uint userId) override public 
     {
         globalStat.TotalFoundSum += value;
         Pulls[newPullId].TicketCount++;
         UserIdByNumber[newPullId][Pulls[newPullId].TicketCount] = userId;
         SumByUserId[newPullId][userId] = value;
     }
-    function AddToTicket(uint userId, uint value) override public payable Pass()
+    function AddToTicket(uint userId, uint value) override public 
     {
         SumByUserId[newPullId][userId] += value;
     }
-    function SetCurrentPullValue(uint value)  override public payable Pass()
+    function SetCurrentPullValue(uint value)  override public 
     {
         Pulls[newPullId].CollectedSum += value;
     }
-    function AddNewPull() override public payable Pass()
+    function AddNewPull() override public 
     {  
         newPullId++;
         Pulls[newPullId] = Pull ({
@@ -79,33 +78,23 @@ contract PullStorage  is IPullStorage, SecretKey
         globalStat.TotalPullsClose ++;
     } 
 
-    function AddMemberReferalRewards(uint value, uint UserId) override public payable Pass()
+    function AddMemberReferalRewards(uint value, uint UserId) override public
     {
         globalStat.TotalRewards += value;
         Members[UserId].RewardsFromRef += value;
     }
-    function AddMemberRewards(uint value, uint UserId) override public payable Pass()
+    function AddMemberRewards(uint value, uint UserId) override public
     {
         globalStat.TotalRewards += value;
         Members[UserId].RewardsForPulls += value;
     }
-    function SetKey() public override payable
-    {
-        this.Set(msg.sender);
-    }
-    function ChangeKey(address newKey) public payable 
-    {
-        require(msg.sender == owner, "2");
-        this.Change(newKey);
-    }
 
 
-    
+
     ///// VIEW 
     function TicketExistOnPull (uint userId, uint pullId) public override view returns(bool)
     {
         return SumByUserId[pullId][userId] != 0;
-        //return [pullId][userId].UserId != 0;
     }
     function IsPullExist(uint id) override public view returns (bool)
     {

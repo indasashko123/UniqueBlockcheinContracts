@@ -3,8 +3,8 @@ pragma solidity ^0.8.0;
 
 interface IUserStorage
 {
-   function AddUser(address userAddress, address Ref) external payable;
-   function AddReferal(address userAddress) external payable;
+   function AddUser(address userAddress, address Ref) external;
+   function AddReferal(address userAddress) external;
    
    
    
@@ -17,5 +17,4 @@ interface IUserStorage
    function GetMembersCount() external view returns(uint);
    function GetUserIdByAddress(address adr) external view returns(uint);
    function GetUserAddressById(uint userId) external view returns (address);
-   function SetKey() external payable;
 }
