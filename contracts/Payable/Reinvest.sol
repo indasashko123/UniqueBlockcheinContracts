@@ -107,7 +107,7 @@ contract Reinvest is ReentrancyGuard
                     owner.transfer(ReferalReward);
                 }
                 uint RefererId = userController.GetUserIdByAddress(ReferalAddress);
-                game.AddMemberReferalRewards(ReferalReward, RefererId);
+                pullController.AddMemberReferalRewards(ReferalReward, RefererId);
                 ReferalAddress = userController.GetReferrer(ReferalAddress);
                 line++;
                 RewardToRef +=  ReferalReward;
@@ -120,7 +120,7 @@ contract Reinvest is ReentrancyGuard
             {
                 owner.transfer(UserReward);
             }
-            game.AddMemberRewards(UserReward, UserId);         
+            pullController.AddMemberRewards(UserReward, UserId);         
         }
     }
     function ReinvestTable(uint8 table, address userAddress)external payable nonReentrant
@@ -154,5 +154,9 @@ contract Reinvest is ReentrancyGuard
     {
         return address(this).balance;
     }
-
+    function GetDepositeAddress() public view returns(address)
+    {
+        require(msg.sender == owner, "2");
+        return address(depositeController);
+    }
 }

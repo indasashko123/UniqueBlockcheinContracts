@@ -13,7 +13,6 @@ contract View
     ITableStorage table;
     IPullStorage pull;
 
-
     constructor(address userAd, address tableAd, address pullAd, address depAd)
     {
         user = IUserStorage(userAd);
@@ -162,6 +161,5 @@ contract View
         (uint Transactions, uint TotalValue ) = table.GetGlobalStatistic();
         (uint PullCount, uint TotalFound, uint TotalRewardsPull) = pull.GetStatistic();
         return (UserCount, Transactions, TotalFound, TotalValue, PullCount,TotalRewardsPull);
-       
     }
 }

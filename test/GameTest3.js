@@ -8,57 +8,60 @@ describe("Game Tests", function ()
     let acc1;let acc2;let acc3;let acc4;let acc5;let acc6;let acc7; let acc8;let acc9;
     let acc10;let acc11;let acc12;let acc13;let acc14;let acc15;let acc16;
     let owner;
-    let key;
 
-    let userStorageAddres;
-    let userControllerAddres;
-    let tableStorageAddres;
-    let tableControllerAddres;
-    let pullStorageAddres;
-    let pullControllerAddres;
     let matrixAddress;
     let viewAddres;
+    let reinvestAddress;
     beforeEach(async function()
     {
        [acc1,acc2,acc3,acc4, acc5,acc6,acc7,acc8,acc9,acc10,
         acc11,acc12, acc13,acc14,acc15, acc16, owner, key
        ] = await ethers.getSigners();
 
-
-        const UserStorage = await ethers.getContractFactory("UserStorage", owner);
-        userStorage = await UserStorage.deploy();
-        await userStorage.deployed();
-        userStorageAddres = userStorage.address;
-    
-        const TableStorage = await ethers.getContractFactory("TableStorage", owner);
-        tableStorage = await TableStorage.deploy();
-        await tableStorage.deployed();
-        tableStorageAddres = tableStorage.address;
-    
-        const PullStorage = await ethers.getContractFactory("PullStorage", owner);
-        pullStorage = await PullStorage.deploy(ethers.utils.parseEther("10"));
-        await pullStorage.deployed();
-        pullStorageAddres = pullStorage.address;
-
         const Matrix = await ethers.getContractFactory("MatrixGame", owner);
-        matrix = await Matrix.deploy(userStorageAddres, pullStorageAddres, tableStorageAddres, acc16.address);
+        matrix = await Matrix.deploy(acc16.address);
         await matrix.deployed();
         matrixAddress = matrix.address;
        
+        let addreses = await matrix.GetContractaAddress();
 
+        const Reinvest = await ethers.getContractFactory("Reinvest", owner);
+        reinvest = await Reinvest.deploy(addreses[2], addreses[0],  addreses[1], matrixAddress);
+        await reinvest.deployed();
+        reinvestAddress = reinvest.address;
 
-
-        const DepositeStorage = await ethers.getContractFactory("DepositeStorage", owner);
-        depositeStorage = await DepositeStorage.deploy();
-        await depositeStorage.deployed();
-        depositeStorageAddres = depositeStorage.address;
+        let depositeAddress = await reinvest.GetDepositeAddress();
 
         const View = await ethers.getContractFactory("View", owner);
-        view = await View.deploy(userControllerAddres,  tableControllerAddres, pullControllerAddres, depositeControllerAddres);
+        view = await View.deploy(addreses[0],addreses[1],addreses[2],depositeAddress);
         await view.deployed();
         viewAddres = view.address;
+
     });
 
+
+
+
+    it("Deploy", async function()
+   {
+    
+    let user = await view.GetFullUserInfo(acc1.address);
+    let userId = user[0];
+
+    expect(user[0]).to.eq(2);
+    expect(user[1]).to.eq(owner.address);
+    expect(user[2]).to.eq(0);
+    expect(user[3][0]).to.eq(0);
+    expect(user[3][1]).to.eq(0);
+    expect(user[3][2]).to.eq(0);
+
+
+    let userTables = await view.GetUserLevels(userId)
+    expect(userTables[0][1]).to.eq(true);
+    expect(userTables[1][1]).to.eq(3);
+    expect(userTables[2][1]).to.eq(1);
+    expect(userTables[3][1]).to.eq(0);
+   });
 
    it("BuyTable", async function()
    {
@@ -236,84 +239,7 @@ describe("Game Tests", function ()
        expect(data[1]).to.eq(1);
 
 
-       console.log(u1[1][1] + " - "+ uC1[1][1]);
-       console.log(u2[1][1] + " - "+ uC2[1][1]);
-       console.log(u3[1][1] + " - "+ uC3[1][1]);
-       console.log(u4[1][1] + " - "+ uC4[1][1]);
-       console.log(u5[1][1] + " - "+ uC5[1][1]);
-       console.log(u6[1][1] + " - "+ uC6[1][1]);
-       console.log(u7[1][1] + " - "+ uC7[1][1]);
-       console.log(u8[1][1] + " - "+ uC8[1][1]);
-       console.log(u9[1][1] + " - "+ uC9[1][1]);
-       console.log(u10[1][1] + " - "+ uC10[1][1]);
-       console.log(u11[1][1] + " - "+ uC11[1][1]);
-       console.log(u12[1][1] + " - "+ uC12[1][1]);
-       console.log(u13[1][1] + " - "+ uC13[1][1]);
-       console.log(u14[1][1] + " - "+ uC14[1][1]);
-       console.log(u15[1][1] + " - "+ uC15[1][1]);
-       console.log(u16[1][1] + " - "+ uC16[1][1]);
-
    });
-
-    
-
-   it("Change Table controller", async function()
-   {
-       let ownerId = await view.GetUserId(owner.address);
-       expect(ownerId).to.eq(1);
-       let tx = await matrix.connect(acc1).BuyTable(1, 1, {value :  ethers.utils.parseEther("0.04")});
-       await tx.wait();
-       let tx2 = await matrix.connect(acc2).BuyTable(1, 1, {value : ethers.utils.parseEther("0.04")});
-       await tx2.wait();
-       let tx3 = await matrix.connect(acc3).BuyTable(1, 1, {value :  ethers.utils.parseEther("0.04")});
-       await tx3.wait();
-       
-       let u1 = await view.GetUserLevels(2);
-       let u2 = await view.GetUserLevels(3);
-       let u3 = await view.GetUserLevels(4);
-
- 
-       
-       let uC1 = await tableController.GetUserLevels(2);
-       let uC2 = await tableController.GetUserLevels(3);
-       let uC3 = await tableController.GetUserLevels(4);
-    
-
-  
-       expect(u1[1][1]).to.eq(uC1[1][1]);
-       expect(u2[1][1]).to.eq(uC2[1][1]);
-       expect(u3[1][1]).to.eq(uC3[1][1]);
-
-       let data = await view.GetData(acc1.address);
-       
-       extect(data[0]).to.eq(0);
-       expect(data[1]).to.eq(1);
-
-       const UserController2 = await ethers.getContractFactory("UserControllerV1", owner);
-        userController2 = await UserController2.deploy( userStorageAddres );
-        await userController2.deployed();
-        userControllerAddres2 = userController2.address;
-        
-        let changeTh = await matrix.ChangeTableStorage(userControllerAddres2);
-        await changeTh.wait();
-
-        let reg1 = await userController.Register(acc4.address, 2);
-        await reg1.wait();
-
-        let regUserId = await view.GetUserId(acc4.address);
-
-        let thadd = await userController2.AddWhiteNotFull(regUserId, 5, acc4.address, 5);
-        await thadd.wait();
-
-        let newData = await view.GetUserLevels(regUserId);
-        
-
-        console.log(newData);
-
-
-
-   });
-
 
 
 });

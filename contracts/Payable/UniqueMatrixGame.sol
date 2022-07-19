@@ -25,7 +25,7 @@ contract UniqueMatrixGame is ReentrancyGuard
     IUserStorage userStorage;
     ITableStorage tableStorage;
     IPullStorage pullStorage;
-    Reinvest reinvest;
+
 
     uint8 constant rewardPayouts = 3;
     uint8 constant rewardPercents = 60;
@@ -33,20 +33,15 @@ contract UniqueMatrixGame is ReentrancyGuard
 
    
 
-    constructor(
-     address PullReinvestAddress
-     ) 
+    constructor(address PullReinvestAddress) 
     {
         owner = payable(msg.sender);
         userStorage = new UserStorage();
         tableStorage = new TableStorage();  
         pullStorage = new PullStorage(10 ether);
         _pullInvestAddress =  PullReinvestAddress; 
-        reinvest = new Reinvest(
-            address(pullStorage),
-            address(userStorage),
-            address(tableStorage),
-            payable(address(this)));
+        AddWhite(1,25,owner);
+        _started();
     }
 
     uint[] public referralRewardPercents = 
@@ -170,7 +165,6 @@ contract UniqueMatrixGame is ReentrancyGuard
  
     function BuyTableReInvest(uint userId, uint value, uint8 table) public 
     {
-        require(msg.sender == address(reinvest), "3");
         require(table > 0 && table <= totalTables, "Invalid level");
         require(TablePrice[table] == value, "Invalid BNB value");
         tableStorage.AddTotalValue(value);
@@ -289,7 +283,36 @@ contract UniqueMatrixGame is ReentrancyGuard
         }
     }
 
+    function _started() private
+    {
+        _Register(address(0x9Ee86BF20397df40A4eFf81C24fE567870b9617b), 1);
+        AddWhite(2, 3, address(0x9Ee86BF20397df40A4eFf81C24fE567870b9617b));
+ 
+        _Register(address(0x7B1628580F850CAd2C3343c09d306c3F97a30d0a), 2);
+        AddWhite(3, 3, address(0x7B1628580F850CAd2C3343c09d306c3F97a30d0a));
 
+        _Register(address(0xA1e5f8e3475e4Be19934dB3eDE8bB735Cf533D50),3);
+        AddWhiteNotFull(4,3,address(0xA1e5f8e3475e4Be19934dB3eDE8bB735Cf533D50), 8);
+
+        _Register(address(0xE6179F7bAe844C73F7274111bf967Fd563C445A9),4);
+        AddWhiteNotFull(5, 3, address(0xE6179F7bAe844C73F7274111bf967Fd563C445A9), 5);
+
+        _Register(address(0x01eCc9bcf58c34bCB96392F516C0ebC9A4836727),5);
+        AddWhiteNotFull(6, 3, address(0x01eCc9bcf58c34bCB96392F516C0ebC9A4836727), 5);
+
+        _Register(address(0x74F65A4f841e17b6c6dCc363Cf4208Ec51d1837f), 2);
+        AddWhiteNotFull(7, 3, address(0x74F65A4f841e17b6c6dCc363Cf4208Ec51d1837f), 8);
+       
+        _Register(address(0x865B4B1C7394F3930C87749Dc61d708DC8C7Ed3E), 7);
+        AddWhiteNotFull(8, 3, address(0x865B4B1C7394F3930C87749Dc61d708DC8C7Ed3E), 6);
+
+        _Register(address(0x5c4A78158f40D9817EcdFD0b49Ec280AC9C9b283), 8);
+        AddWhiteNotFull(9, 3, address(0x5c4A78158f40D9817EcdFD0b49Ec280AC9C9b283), 6);
+
+        _Register(address(0x0115ffc383226531D11646b5aAF7382D17473161), 9);
+        AddWhiteNotFull(10, 3, address(0x0115ffc383226531D11646b5aAF7382D17473161), 7);
+
+    }
 
 
 
@@ -339,10 +362,14 @@ contract UniqueMatrixGame is ReentrancyGuard
             tableStorage.AddTable(line, payouts, userAddress , userId);
         }
     }
-    function GetReinvestContractAddress() public view returns(address)
+    function GetContractaAddress() public view returns(address[3] memory)
     {
         require(msg.sender == owner, "2");
-        return address(reinvest);
+        address[3] memory addresses;
+        addresses[0] = (address(userStorage));
+        addresses[1] = (address(tableStorage));
+        addresses[2] = (address(pullStorage));
+        return addresses;
     }
 }
 
